@@ -1,8 +1,8 @@
-protection: --sets exp.privatization protection
-mine-W: --sets exp.privatization mine-W
-lock: --sets exp.privatization lock
-write: --sets exp.privatization write
-write+lock: --sets exp.privatization write+lock
+protection: --sets ana.base.privatization protection
+mine-W: --sets ana.base.privatization mine-W
+lock: --sets ana.base.privatization lock
+write: --sets ana.base.privatization write
+write+lock: --sets ana.base.privatization write+lock
 
 Group: POSIX Apps (ordered by logical LoC within this group)
 
