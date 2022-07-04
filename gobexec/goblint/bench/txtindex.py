@@ -5,7 +5,7 @@ from typing import Optional, List
 import re
 
 import gobexec.model.benchmark
-from gobexec.goblint import GoblintTool
+from gobexec.goblint import GoblintTool, GoblintConfTool
 from gobexec.model.scenario import Matrix
 
 
@@ -45,7 +45,7 @@ class Conf:
     param: str
 
     def to_tool(self) -> GoblintTool:
-        return GoblintTool(
+        return GoblintConfTool(
             name=self.name,
             args=shlex.split(self.param)
         )

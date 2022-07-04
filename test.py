@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 
 from gobexec.goblint.bench import txtindex
@@ -11,7 +12,7 @@ class EchoTool(Tool):
         return benchmark.name
 
 
-index = txtindex.Index.from_path(Path("./gobexec/goblint/bench/traces.txt"))
+index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = index.to_matrix()
 
-matrix.execute()
+asyncio.run(matrix.execute_async())
