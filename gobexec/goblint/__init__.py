@@ -42,7 +42,7 @@ class GoblintTool:
         bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
         with tempfile.TemporaryDirectory() as tmp:
             args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + ["--set", "goblint-dir", tmp] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
-            print(args)
+            # print(args)
             p = await asyncio.create_subprocess_exec(
                 args[0],
                 *args[1:],
@@ -52,7 +52,7 @@ class GoblintTool:
                 cwd=bench / benchmark.files[0].parent
             )
             stdout, stderr = await p.communicate()
-            print(stderr)
+            # print(stderr)
             return RaceExtract().extract(stdout)
 
 
