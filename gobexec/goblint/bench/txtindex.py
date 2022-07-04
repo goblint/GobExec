@@ -88,14 +88,14 @@ class Index:
                 else:
                     name = line
                     info = file.readline().strip()
-                    path = Path(file.readline().strip())
+                    bpath = Path(file.readline().strip())
                     param = file.readline().strip()
                     if param == "-":
                         param = None
                     benchmark = Benchmark(
                         name=name,
                         info=info,
-                        path=path,
+                        path=bpath,
                         param=param,
                     )
                     groups[-1].benchmarks.append(benchmark)
