@@ -1,10 +1,9 @@
 import asyncio
 from pathlib import Path
 
-from jinja2 import Environment, select_autoescape, ChoiceLoader, PackageLoader
-
 from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex
+from gobexec.output.renderer import FileRenderer
 
 goblint = GoblintTool(
     program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
@@ -14,21 +13,6 @@ goblint = GoblintTool(
 index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = index.to_matrix(goblint)
 
-env = Environment(
-    loader=PackageLoader("gobexec.output.html"),
-    autoescape=select_autoescape()
-)
-template = env.get_template("page.html")
-
-
-def render(result, progress=None):
-    result_template = result.template(env)
-    render = template.render(result_template=result_template, result=result, progress=progress)
-    with open("out.html", "w", buffering=1024*1024*20) as outfile:
-        outfile.write(render)
-        outfile.flush()
-
-
-results = asyncio.run(matrix.execute_async(render))
-print(results)
-render(results)
+renderer = FileRenderer(Path("out.html"))
+result = asyncio.run(matrix.execute_async(renderer))
+renderer.render(result)

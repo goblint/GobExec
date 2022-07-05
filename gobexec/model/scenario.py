@@ -5,6 +5,7 @@ from typing import List
 from gobexec.model.benchmark import Group
 from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
 from gobexec.model.tool import Tool
+from gobexec.output.renderer import Renderer
 
 
 @dataclass
@@ -12,7 +13,7 @@ class Matrix:
     groups: List[Group]
     tools: List[Tool]
 
-    async def execute_async(self, render) -> MatrixResult:
+    async def execute_async(self, renderer: Renderer) -> MatrixResult:
         matrix_result = MatrixResult(self.tools, [])
 
         queue = asyncio.Queue()
@@ -42,7 +43,7 @@ class Matrix:
             #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
             # print("", end="", flush=True)
 
-            render(matrix_result, progress=(done, total))
+            renderer.render(matrix_result, progress=(done, total))
 
         print_progress(clear=False)
 
