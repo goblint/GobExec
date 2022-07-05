@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Results</title>
+</head>
+<body>
+    <table>
+    <tr>
+        <th>Group</th>
+        <th>Benchmark</th>
+    {% for tool in matrix.tools %}
+        <th>{{ tool.name }}</th>
+    {% endfor %}
+    </tr>
+    {% for group in results %}
+        {% set outer_loop = loop %}
+        {% for benchmark in group %}
+            <tr>
+                {% if loop.first %}
+                <td rowspan={{ matrix.groups[outer_loop.index0].benchmarks|length }}>{{ matrix.groups[outer_loop.index0].name }}</td>
+                {% endif %}
+                <td>{{ matrix.groups[outer_loop.index0].benchmarks[loop.index0].name }}</td>
+            {% for tool in benchmark %}
+                <td>
+                {{ tool }}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </table>
+</body>
+</html>
