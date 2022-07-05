@@ -13,7 +13,7 @@ class Matrix:
     tools: List[Tool]
 
     async def execute_async(self, render) -> MatrixResult:
-        matrix_result = MatrixResult([])
+        matrix_result = MatrixResult(self.tools, [])
 
         queue = asyncio.Queue()
         for i, group in enumerate(self.groups):

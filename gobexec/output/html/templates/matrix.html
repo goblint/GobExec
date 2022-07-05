@@ -2,11 +2,11 @@
 <tr>
     <th>Group</th>
     <th>Benchmark</th>
-{% for tool in matrix.tools %}
+{% for tool in result.tools %}
     <th>{{ tool.name }}</th>
 {% endfor %}
 </tr>
-{% for group_result in matrix_results.groups %}
+{% for group_result in result.groups %}
     {% for benchmark_results in group_result.benchmarks %}
         <tr>
         {% if loop.first %}

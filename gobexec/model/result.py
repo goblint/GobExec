@@ -26,4 +26,8 @@ class GroupToolsResult:
 
 @dataclass
 class MatrixResult:
+    tools: List[Tool]
     groups: List[GroupToolsResult]
+
+    def template(self, env):
+        return env.get_template("matrix.html")

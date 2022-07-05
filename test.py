@@ -15,13 +15,10 @@ index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-b
 matrix = index.to_matrix(goblint)
 
 env = Environment(
-    loader=ChoiceLoader([
-        PackageLoader("gobexec.output"),
-        PackageLoader("gobexec.output.html")
-    ]),
+    loader=PackageLoader("gobexec.output.html"),
     autoescape=select_autoescape()
 )
-template = env.get_template("result.html")
+template = env.get_template("page.html")
 
 
 def render(results, progress=None):
