@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Results</title>
+{% if progress %}
+    <meta http-equiv="refresh" content="1">
+{% endif %}
+</head>
+<body>
+{% if progress %}
+    <p>
+        <progress value={{ progress[0] }} max={{ progress[1] }}></progress>
+        {{ progress[0] }}/{{ progress[1] }}
+    </p>
+{% endif %}
+    {% include 'matrix.html' %}
+</body>
+</html>
