@@ -41,7 +41,7 @@ class GoblintTool:
     async def run_async(self, benchmark: Single) -> str:
         bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
         with tempfile.TemporaryDirectory() as tmp:
-            args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + ["--set", "goblint-dir", tmp] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
+            args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + ["--set", "goblint-dir", tmp] + ["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json"] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
             # print(args)
             p = await asyncio.create_subprocess_exec(
                 args[0],
@@ -54,8 +54,3 @@ class GoblintTool:
             stdout, stderr = await p.communicate()
             # print(stderr)
             return RaceExtract().extract(stdout)
-
-
-class GoblintConfTool(GoblintTool):
-    def __init__(self, name: str, args: List[str]) -> None:
-        super().__init__(name=name, args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json"] + args)
