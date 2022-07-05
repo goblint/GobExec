@@ -10,7 +10,7 @@
     {% for benchmark_results in group_result.benchmarks %}
         <tr>
         {% if loop.first %}
-            <td rowspan={{ group_result.benchmarks|length }}>{{ group_result.group.name }}</td>
+            <td rowspan={{ group_result.benchmarks|length }} style="vertical-align: top;">{{ group_result.group.name }}</td>
         {% endif %}
             <td>{{ benchmark_results.benchmark.name }}</td>
         {% for benchmark_result in benchmark_results.results %}
