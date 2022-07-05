@@ -21,9 +21,12 @@ env = Environment(
 template = env.get_template("page.html")
 
 
-def render(results, progress=None):
-    with open("out.html", "w") as outfile:
-        outfile.write(template.render(matrix=matrix, matrix_results=results, progress=progress))
+def render(result, progress=None):
+    result_template = result.template(env)
+    render = template.render(result_template=result_template, result=result, progress=progress)
+    with open("out.html", "w", buffering=1024*1024*20) as outfile:
+        outfile.write(render)
+        outfile.flush()
 
 
 results = asyncio.run(matrix.execute_async(render))
