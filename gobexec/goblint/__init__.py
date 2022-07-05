@@ -2,14 +2,15 @@ import asyncio
 import re
 import subprocess
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from gobexec.model.benchmark import Single
 
 
 ARGS_TOOL_KEY = "goblint-args"
+CWD_TOOL_KEY = "goblint-cwd"
 
 
 class RaceExtract:
@@ -23,25 +24,30 @@ class RaceExtract:
 
 @dataclass
 class GoblintTool:
-    name: str
-    args: List[str]
+    name: str = "Goblint"
+    program: str = "goblint"
+    args: List[str] = field(default_factory=list)
+    cwd: Optional[Path] = None
 
-    def run(self, benchmark: Single) -> str:
-        bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
-        args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
-        print(args)
-        p = subprocess.run(
-            args=args,
-            capture_output=True,
-            cwd=bench / benchmark.files[0].parent
-        )
-        print(p.stderr)
-        return RaceExtract().extract(p.stdout)
+    # def run(self, benchmark: Single) -> str:
+    #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
+    #     args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
+    #     print(args)
+    #     p = subprocess.run(
+    #         args=args,
+    #         capture_output=True,
+    #         cwd=bench / benchmark.files[0].parent
+    #     )
+    #     print(p.stderr)
+    #     return RaceExtract().extract(p.stdout)
 
     async def run_async(self, benchmark: Single) -> str:
-        bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
         with tempfile.TemporaryDirectory() as tmp:
-            args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + ["--set", "goblint-dir", tmp] + ["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json"] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
+            args = [self.program] + \
+                   ["--set", "goblint-dir", tmp] + \
+                   self.args + \
+                   benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
+                   [str(file) for file in benchmark.files]
             # print(args)
             p = await asyncio.create_subprocess_exec(
                 args[0],
@@ -49,7 +55,7 @@ class GoblintTool:
                 # capture_output=True,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
-                cwd=bench / benchmark.files[0].parent
+                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
             )
             stdout, stderr = await p.communicate()
             # print(stderr)

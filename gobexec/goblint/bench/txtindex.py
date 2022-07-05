@@ -1,3 +1,4 @@
+import dataclasses
 import shlex
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,9 +21,10 @@ class Benchmark:
         return gobexec.model.benchmark.Single(
             name=self.name,
             description=self.info,
-            files=[self.path],
+            files=[self.path.relative_to(self.path.parent)],
             tool_data={
-                gobexec.goblint.ARGS_TOOL_KEY: shlex.split(self.param) if self.param else []
+                gobexec.goblint.ARGS_TOOL_KEY: shlex.split(self.param) if self.param else [],
+                gobexec.goblint.CWD_TOOL_KEY: self.path.parent
             }
         )
 
@@ -44,10 +46,10 @@ class Conf:
     name: str
     param: str
 
-    def to_tool(self) -> GoblintTool:
-        return GoblintTool(
+    def to_tool(self, base_tool:GoblintTool) -> GoblintTool:
+        return dataclasses.replace(base_tool,
             name=self.name,
-            args=shlex.split(self.param)
+            args=base_tool.args + shlex.split(self.param)
         )
 
 
@@ -57,9 +59,9 @@ class Index:
     confs: List[Conf]
     groups: List[Group]
 
-    def to_matrix(self) -> Matrix:
+    def to_matrix(self, base_tool:GoblintTool) -> Matrix:
         return Matrix(
-            tools=[conf.to_tool() for conf in self.confs],
+            tools=[conf.to_tool(base_tool) for conf in self.confs],
             groups=[group.to_group() for group in self.groups]
         )
 

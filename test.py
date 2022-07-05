@@ -1,19 +1,16 @@
 import asyncio
 from pathlib import Path
 
+from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex
-from gobexec.model.benchmark import Single
-from gobexec.model.scenario import Matrix
-from gobexec.model.tool import Tool
 
-
-class EchoTool(Tool):
-    def run(self, benchmark: Single) -> str:
-        return benchmark.name
-
-
+goblint = GoblintTool(
+    program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
+    args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json"],
+    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
+)
 index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
-matrix = index.to_matrix()
+matrix = index.to_matrix(goblint)
 
 results = asyncio.run(matrix.execute_async())
 print(results)
