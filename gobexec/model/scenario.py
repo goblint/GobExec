@@ -12,7 +12,7 @@ class Matrix:
     groups: List[Group]
     tools: List[Tool]
 
-    async def execute_async(self) -> MatrixResult:
+    async def execute_async(self, render) -> MatrixResult:
         matrix_result = MatrixResult([])
 
         queue = asyncio.Queue()
@@ -41,6 +41,8 @@ class Matrix:
             #         for tool in self.tools:
             #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
             # print("", end="", flush=True)
+
+            render(matrix_result, progress=(done, total))
 
         print_progress(clear=False)
 
