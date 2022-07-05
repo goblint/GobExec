@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Results</title>
 {% if progress %}
+    <title>Results ({{ progress[0] }}/{{ progress[1] }})</title>
     <meta http-equiv="refresh" content="1">
+{% else %}
+    <title>Results</title>
 {% endif %}
 </head>
 <body>
