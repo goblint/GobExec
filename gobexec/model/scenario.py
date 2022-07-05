@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import List
 
 from gobexec.model.benchmark import Group
+from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
 from gobexec.model.tool import Tool
 
 
@@ -11,19 +12,19 @@ class Matrix:
     groups: List[Group]
     tools: List[Tool]
 
-    async def execute_async(self):
-        results = []
+    async def execute_async(self) -> MatrixResult:
+        matrix_result = MatrixResult([])
 
         queue = asyncio.Queue()
         for i, group in enumerate(self.groups):
-            group_results = []
+            group_result = GroupToolsResult(group, [])
             for j, benchmark in enumerate(group.benchmarks):
-                benchmark_results = []
+                benchmark_results = SingleToolsResult(benchmark, [])
                 for k, tool in enumerate(self.tools):
                     queue.put_nowait((tool, benchmark, i, j, k))
-                    benchmark_results.append(None)
-                group_results.append(benchmark_results)
-            results.append(group_results)
+                    benchmark_results.results.append(None)
+                group_result.benchmarks.append(benchmark_results)
+            matrix_result.groups.append(group_result)
 
         total = queue.qsize()
         done = 0
@@ -51,7 +52,11 @@ class Matrix:
                 # print(out)
                 done += 1
                 dones.append((tool, benchmark))
-                results[i][j][k] = out
+                matrix_result.groups[i].benchmarks[j].results[k] = SingleToolResult(
+                    benchmark=benchmark,
+                    tool=tool,
+                    result=out
+                )
                 print_progress()
                 queue.task_done()
 
@@ -64,4 +69,5 @@ class Matrix:
         for task in workers:
             task.cancel()
         await asyncio.gather(*workers, return_exceptions=True)
-        return results
+
+        return matrix_result

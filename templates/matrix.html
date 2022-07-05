@@ -12,17 +12,15 @@
         <th>{{ tool.name }}</th>
     {% endfor %}
     </tr>
-    {% for group in results %}
-        {% set outer_loop = loop %}
-        {% for benchmark in group %}
+    {% for group_result in matrix_results.groups %}
+        {% for benchmark_results in group_result.benchmarks %}
             <tr>
-                {% if loop.first %}
-                <td rowspan={{ matrix.groups[outer_loop.index0].benchmarks|length }}>{{ matrix.groups[outer_loop.index0].name }}</td>
-                {% endif %}
-                <td>{{ matrix.groups[outer_loop.index0].benchmarks[loop.index0].name }}</td>
-            {% for tool in benchmark %}
-                <td>
-                {{ tool }}
+            {% if loop.first %}
+                <td rowspan={{ group_result.benchmarks|length }}>{{ group_result.group.name }}</td>
+            {% endif %}
+                <td>{{ benchmark_results.benchmark.name }}</td>
+            {% for benchmark_result in benchmark_results.results %}
+                <td>{{ benchmark_result.result }}</td>
             {% endfor %}
             </tr>
         {% endfor %}
