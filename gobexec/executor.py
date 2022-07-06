@@ -8,12 +8,13 @@ from gobexec.output.renderer import Renderer
 class Progress:
     done: int
     total: int
+    active: int
 
 
 @dataclass
 class Sequential:
     def execute(self, result, jobs, renderer: Renderer) -> None:
-        progress = Progress(0, len(jobs))
+        progress = Progress(0, len(jobs), 1)
         renderer.render(result, progress)
 
         for job in jobs:
@@ -22,6 +23,7 @@ class Sequential:
             renderer.render(result, progress)
 
         renderer.render(result)
+
 
 @dataclass
 class Parallel:
@@ -32,14 +34,16 @@ class Parallel:
         for job in jobs:
             queue.put_nowait(job)
 
-        progress = Progress(0, queue.qsize())
+        progress = Progress(0, queue.qsize(), 0)
         renderer.render(result, progress)
 
         async def worker():
             while True:
                 job = await queue.get()
+                progress.active += 1
                 await job()
                 progress.done += 1
+                progress.active -= 1
                 renderer.render(result, progress)
                 queue.task_done()
 

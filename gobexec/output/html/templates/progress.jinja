@@ -7,7 +7,7 @@
 {% block body %}
     <p>
         <progress value={{ progress.done }} max={{ progress.total }}></progress>
-        {{ progress.done }}/{{ progress.total }}
+        {{ progress.done }}/{{ progress.total }} (active: {{ progress.active }})
     </p>
     {{ super() }}
 {% endblock %}

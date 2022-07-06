@@ -2,5 +2,5 @@
 {%- if progress.done != 0 -%}
 {{ '\r\033[K' }}
 {%- endif -%}
-{{ progress.done }}/{{ progress.total }}
+{{ progress.done }}/{{ progress.total }} (active: {{ progress.active }})
 {%- endif %}
