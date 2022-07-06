@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
-from jinja2 import Environment, Template, PackageLoader, select_autoescape, ChoiceLoader
+from jinja2 import Environment, Template, PackageLoader, select_autoescape, ChoiceLoader, pass_environment
 
 
 class Renderer:
@@ -17,6 +17,13 @@ class Renderer:
             ]),
             autoescape=select_autoescape()
         )
+
+        @pass_environment
+        def template(env, x):
+            t = x.template(env)
+            return t.render(this=x)
+        self.env.filters["template"] = template
+
         self.index_template = self.env.get_template(f"index.jinja")
         self.progress_template = self.env.get_template(f"progress.jinja")
 
