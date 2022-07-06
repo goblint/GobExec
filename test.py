@@ -5,6 +5,7 @@ from gobexec import executor
 from gobexec.executor import Progress
 from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
+from gobexec.goblint.bench.tools import DuetTool
 from gobexec.goblint.result import AssertSummary, AssertSummaryChecker
 from gobexec.model import scenario
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
@@ -16,9 +17,15 @@ goblint = GoblintTool(
     cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
     result=AssertSummaryChecker(assert_counter)
 )
+duet = DuetTool(
+    program="/home/simmo/Desktop/duet/duet/duet.exe",
+    args=["-coarsen", "-inline", "-domain", "oct"],
+    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
+)
 index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = index.to_matrix(goblint)
-matrix.tools.append(assert_counter)
+matrix.tools.append(duet)
+matrix.tools.insert(0, assert_counter)
 
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
