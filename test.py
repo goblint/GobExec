@@ -1,9 +1,11 @@
+import asyncio
 from pathlib import Path
 
 from gobexec import executor
 from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.result import AssertSummary
+from gobexec.model import scenario
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
 goblint = GoblintTool(
@@ -19,7 +21,13 @@ matrix.tools.append(tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-com
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
-result, jobs = matrix.execution_plan()
-executor = executor.Parallel(num_workers=10)
-# executor = executor.Sequential()
-executor.execute(result, jobs, renderer)
+
+
+async def main():
+    scenario.sem.set(asyncio.BoundedSemaphore(14))
+    result = await matrix.execute()
+    await result.join()
+    renderer.render(result)
+
+
+asyncio.run(main())

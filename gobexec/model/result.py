@@ -1,3 +1,5 @@
+import asyncio
+from asyncio import Task
 from dataclasses import dataclass
 from typing import List, Optional
 
@@ -15,7 +17,10 @@ class SingleToolResult:
 @dataclass
 class SingleToolsResult:
     benchmark: Single
-    results: List[Optional[SingleToolResult]]
+    results: List[Task[SingleToolResult]]
+
+    async def join(self) -> None:
+        await asyncio.wait(self.results)
 
 
 @dataclass
@@ -23,11 +28,17 @@ class GroupToolsResult:
     group: Group
     benchmarks: List[SingleToolsResult]
 
+    async def join(self) -> None:
+        await asyncio.wait([benchmark.join() for benchmark in self.benchmarks])
+
 
 @dataclass
 class MatrixResult:
     tools: List[Tool]
     groups: List[GroupToolsResult]
+
+    async def join(self) -> None:
+        await asyncio.wait([group.join() for group in self.groups])
 
     def template(self, env):
         return env.get_template("matrix.jinja")

@@ -16,8 +16,8 @@
             <td>{{ benchmark_results.benchmark.name }}</td>
         {% for benchmark_result in benchmark_results.results %}
             <td>
-            {% if benchmark_result.result %}
-            {{ benchmark_result.result|template }}
+            {% if benchmark_result.done() %}
+            {{ benchmark_result.result().result|template }}
             {% endif %}
             </td>
         {% endfor %}
