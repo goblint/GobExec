@@ -1,6 +1,6 @@
-import asyncio
 from pathlib import Path
 
+from gobexec import executor
 from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex
 from gobexec.output.renderer import FileRenderer
@@ -14,5 +14,6 @@ index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-b
 matrix = index.to_matrix(goblint)
 
 renderer = FileRenderer(Path("out.html"))
-result = asyncio.run(matrix.execute_async(renderer))
-renderer.render(result)
+result, jobs = matrix.execution_plan()
+executor = executor.Parallel(num_workers=15)
+executor.execute(result, jobs, renderer)
