@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <title>{% block title %}Results{% endblock %}</title>
+{% endblock %}
+</head>
+<body>
+{% block body %}
+    {% include result_template %}
+{% endblock %}
+</body>
+</html>

@@ -7,7 +7,8 @@ from jinja2 import Environment, Template, PackageLoader, select_autoescape, Choi
 
 class Renderer:
     env: Environment
-    page_template: Template
+    index_template: Template
+    progress_template: Template
 
     def __init__(self, package) -> None:
         self.env = Environment(
@@ -16,7 +17,8 @@ class Renderer:
             ]),
             autoescape=select_autoescape()
         )
-        self.page_template = self.env.get_template(f"page.jinja")
+        self.index_template = self.env.get_template(f"index.jinja")
+        self.progress_template = self.env.get_template(f"progress.jinja")
 
     def render(self, result, progress=None):
         pass
@@ -31,7 +33,8 @@ class FileRenderer(Renderer):
 
     def render(self, result, progress=None):
         result_template = result.template(self.env)
-        rendered = self.page_template.render(result_template=result_template, result=result, progress=progress)
+        template = self.progress_template if progress else self.index_template
+        rendered = template.render(result_template=result_template, result=result, progress=progress)
         with self.path.open("w", buffering=1024 * 1024 * 20) as file:
             file.write(rendered)
             file.flush()
@@ -43,7 +46,8 @@ class ConsoleRenderer(Renderer):
 
     def render(self, result, progress=None):
         result_template = result.template(self.env)
-        rendered = self.page_template.render(result_template=result_template, result=result, progress=progress)
+        template = self.progress_template if progress else self.index_template
+        rendered = template.render(result_template=result_template, result=result, progress=progress)
         print(rendered, end="", flush=True)
 
 
