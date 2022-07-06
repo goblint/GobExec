@@ -20,13 +20,13 @@ class Matrix:
     async def execute(self, progress, render) -> MatrixResult:
         matrix_result = MatrixResult(self.tools, [])
 
-        def job(i, j, benchmark, k, tool):
+        def job(i, j, benchmark, k, tool, ctx):
             # workaround to force coroutine to copy arguments
             async def job():
                 progress.total += 1
                 async with sem.get():
                     progress.active += 1
-                    out = await tool.run_async(benchmark)
+                    out = await tool.run_async(ctx, benchmark)
                     # print(out)
                     progress.done += 1
                     progress.active -= 1
@@ -40,9 +40,9 @@ class Matrix:
         for i, group in enumerate(self.groups):
             group_result = GroupToolsResult(group, [])
             for j, benchmark in enumerate(group.benchmarks):
-                benchmark_results = SingleToolsResult(benchmark, [])
+                benchmark_results = SingleToolsResult(benchmark, self.tools, [])
                 for k, tool in enumerate(self.tools):
-                    task = asyncio.create_task(job(i, j, benchmark, k, tool)())
+                    task = asyncio.create_task(job(i, j, benchmark, k, tool, benchmark_results)())
                     task.add_done_callback(lambda _: render())
                     benchmark_results.results.append(task)
                 group_result.benchmarks.append(benchmark_results)

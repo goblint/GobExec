@@ -31,7 +31,7 @@ class GoblintTool:
     #     print(p.stderr)
     #     return RaceExtract().extract(p.stdout)
 
-    async def run_async(self, benchmark: Single):
+    async def run_async(self, ctx, benchmark: Single):
         with tempfile.TemporaryDirectory() as tmp:
             args = [self.program] + \
                    ["--set", "goblint-dir", tmp] + \
@@ -49,4 +49,4 @@ class GoblintTool:
             )
             stdout, stderr = await p.communicate()
             # print(stderr)
-            return self.result.extract(stdout)
+            return await self.result.extract(ctx, stdout)

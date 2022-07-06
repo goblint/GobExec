@@ -17,6 +17,7 @@ class SingleToolResult:
 @dataclass
 class SingleToolsResult:
     benchmark: Single
+    tools: List[Tool]
     results: List[Task[SingleToolResult]]
 
     async def join(self) -> None:

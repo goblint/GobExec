@@ -20,7 +20,7 @@ class AssertCounter:
     name = "asserts"
     cwd: Path
 
-    async def run_async(self, benchmark: Single):
+    async def run_async(self, ctx, benchmark: Single):
         p = await asyncio.create_subprocess_exec(
             "gcc", "-E", *[str(file) for file in benchmark.files],
             # capture_output=True,

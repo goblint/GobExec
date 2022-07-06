@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from typing import Optional, Any
 
 
 @dataclass
@@ -13,7 +14,7 @@ class RaceSummary:
         return env.get_template("racesummary.jinja")
 
     @staticmethod
-    def extract(stdout) -> 'RaceSummary':
+    async def extract(stdout) -> 'RaceSummary':
         stdout = stdout.decode("utf-8")
         safe = int(re.search(r"safe:\s+(\d+)", stdout).group(1))
         vulnerable = int(re.search(r"vulnerable:\s+(\d+)", stdout).group(1))
@@ -26,16 +27,28 @@ class AssertSummary:
     success: int
     warning: int
     error: int
-    # total: int
+    total: Optional[int] = None
 
     def template(self, env):
         return env.get_template("assertsummary.jinja")
 
     @staticmethod
-    def extract(stdout) -> 'AssertSummary':
+    async def extract(ctx, stdout) -> 'AssertSummary':
         stdout = stdout.decode("utf-8")
         success = len(re.findall(r"\[Success]\[Assert]", stdout))
         warning = len(re.findall(r"\[Warning]\[Assert]", stdout))
         error = len(re.findall(r"\[Error]\[Assert]", stdout))
         return AssertSummary(success, warning, error)
 
+
+@dataclass
+class AssertSummaryChecker:
+    assert_counter: Any
+
+    async def extract(self, ctx, stdout):
+        summary = await AssertSummary.extract(ctx, stdout)
+        # TODO: better way to find other results
+        for tool, result in zip(ctx.tools, ctx.results):
+            if tool == self.assert_counter:
+                summary.total = (await result).result.total
+        return summary
