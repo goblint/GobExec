@@ -39,9 +39,8 @@ class FileRenderer(Renderer):
         self.path = path
 
     def render(self, result, progress=None):
-        result_template = result.template(self.env)
         template = self.progress_template if progress else self.index_template
-        rendered = template.render(result_template=result_template, result=result, progress=progress)
+        rendered = template.render(result=result, progress=progress)
         with self.path.open("w", buffering=1024 * 1024 * 20) as file:
             file.write(rendered)
             file.flush()
@@ -52,9 +51,8 @@ class ConsoleRenderer(Renderer):
         super().__init__("gobexec.output.console")
 
     def render(self, result, progress=None):
-        result_template = result.template(self.env)
         template = self.progress_template if progress else self.index_template
-        rendered = template.render(result_template=result_template, result=result, progress=progress)
+        rendered = template.render(result=result, progress=progress)
         print(rendered, end="", flush=True)
 
 
