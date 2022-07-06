@@ -30,4 +30,4 @@ class MatrixResult:
     groups: List[GroupToolsResult]
 
     def template(self, env):
-        return env.get_template("matrix.html")
+        return env.get_template("matrix.jinja")

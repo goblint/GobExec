@@ -14,27 +14,12 @@ class Progress:
 class Sequential:
     def execute(self, result, jobs, renderer: Renderer) -> None:
         progress = Progress(0, len(jobs))
-        print()
-
-        def print_progress(clear=True):
-            print(f"\r\033[K{progress.done}/{progress.total}", end="", flush=True)
-            # print(f"{done}/{total}", flush=True)
-            # if clear:
-            #     print(f"\r\033[K", end="", flush=False)
-            # for group in self.groups:
-            #     for benchmark in group.benchmarks:
-            #         for tool in self.tools:
-            #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
-            # print("", end="", flush=True)
-
-            renderer.render(result, progress)
-
-        print_progress(clear=False)
+        renderer.render(result, progress)
 
         for job in jobs:
             asyncio.run(job())
             progress.done += 1
-            print_progress()
+            renderer.render(result, progress)
 
         renderer.render(result)
 
@@ -48,29 +33,14 @@ class Parallel:
             queue.put_nowait(job)
 
         progress = Progress(0, queue.qsize())
-        print()
-
-        def print_progress(clear=True):
-            print(f"\r\033[K{progress.done}/{progress.total}", end="", flush=True)
-            # print(f"{done}/{total}", flush=True)
-            # if clear:
-            #     print(f"\r\033[K", end="", flush=False)
-            # for group in self.groups:
-            #     for benchmark in group.benchmarks:
-            #         for tool in self.tools:
-            #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
-            # print("", end="", flush=True)
-
-            renderer.render(result, progress)
-
-        print_progress(clear=False)
+        renderer.render(result, progress)
 
         async def worker():
             while True:
                 job = await queue.get()
                 await job()
                 progress.done += 1
-                print_progress()
+                renderer.render(result, progress)
                 queue.task_done()
 
         workers = []
