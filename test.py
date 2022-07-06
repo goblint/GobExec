@@ -2,6 +2,7 @@ import asyncio
 from pathlib import Path
 
 from gobexec import executor
+from gobexec.executor import Progress
 from gobexec.goblint import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.result import AssertSummary
@@ -25,7 +26,8 @@ renderer = MultiRenderer([html_renderer, console_renderer])
 
 async def main():
     scenario.sem.set(asyncio.BoundedSemaphore(14))
-    result = await matrix.execute()
+    progress = Progress(0, 0, 0)
+    result = await matrix.execute(progress, lambda: renderer.render(result, progress)) # tying the knot!
     await result.join()
     renderer.render(result)
 
