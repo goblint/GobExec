@@ -17,7 +17,7 @@ class GoblintTool:
     program: str = "goblint"
     args: List[str] = field(default_factory=list)
     cwd: Optional[Path] = None
-    result = RaceSummary
+    result: Any = RaceSummary
 
     # def run(self, benchmark: Single) -> str:
     #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
