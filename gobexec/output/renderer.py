@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List
 
-from jinja2 import Environment, Template, PackageLoader, select_autoescape, ChoiceLoader, FunctionLoader
+from jinja2 import Environment, Template, PackageLoader, select_autoescape, ChoiceLoader
 
 
 class Renderer:
@@ -13,7 +13,6 @@ class Renderer:
         self.env = Environment(
             loader=ChoiceLoader([
                 PackageLoader(package),
-                FunctionLoader(lambda name: "")
             ]),
             autoescape=select_autoescape()
         )
