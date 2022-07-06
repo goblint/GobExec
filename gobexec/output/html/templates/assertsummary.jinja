@@ -1,3 +1,11 @@
+{% if this.success == 0 %}
+<span style="background-color: pink">
+{% elif this.warning == 0 and this.error == 0 %}
+<span style="background-color: lightgreen">
+{% else %}
+<span style="background-color: NavajoWhite">
+{% endif %}
 <font color="green">{{ this.success }}</font>,
 <font color="orange">{{ this.warning }}</font>,
 <font color="red">{{ this.error }}</font>
+</span>
