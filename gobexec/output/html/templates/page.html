@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 {% if progress %}
-    <title>Results ({{ progress[0] }}/{{ progress[1] }})</title>
+    <title>Results ({{ progress.done }}/{{ progress.total }})</title>
     <meta http-equiv="refresh" content="1">
 {% else %}
     <title>Results</title>
@@ -11,8 +11,8 @@
 <body>
 {% if progress %}
     <p>
-        <progress value={{ progress[0] }} max={{ progress[1] }}></progress>
-        {{ progress[0] }}/{{ progress[1] }}
+        <progress value={{ progress.done }} max={{ progress.total }}></progress>
+        {{ progress.done }}/{{ progress.total }}
     </p>
 {% endif %}
     {% include result_template %}

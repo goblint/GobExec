@@ -5,14 +5,19 @@ from gobexec.output.renderer import Renderer
 
 
 @dataclass
+class Progress:
+    done: int
+    total: int
+
+
+@dataclass
 class Sequential:
     def execute(self, result, jobs, renderer: Renderer) -> None:
-        total = len(jobs)
-        done = 0
+        progress = Progress(0, len(jobs))
         print()
 
         def print_progress(clear=True):
-            print(f"\r\033[K{done}/{total}", end="", flush=True)
+            print(f"\r\033[K{progress.done}/{progress.total}", end="", flush=True)
             # print(f"{done}/{total}", flush=True)
             # if clear:
             #     print(f"\r\033[K", end="", flush=False)
@@ -22,13 +27,13 @@ class Sequential:
             #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
             # print("", end="", flush=True)
 
-            renderer.render(result, progress=(done, total))
+            renderer.render(result, progress)
 
         print_progress(clear=False)
 
         for job in jobs:
             asyncio.run(job())
-            done += 1
+            progress.done += 1
             print_progress()
 
         renderer.render(result)
@@ -42,12 +47,11 @@ class Parallel:
         for job in jobs:
             queue.put_nowait(job)
 
-        total = queue.qsize()
-        done = 0
+        progress = Progress(0, queue.qsize())
         print()
 
         def print_progress(clear=True):
-            print(f"\r\033[K{done}/{total}", end="", flush=True)
+            print(f"\r\033[K{progress.done}/{progress.total}", end="", flush=True)
             # print(f"{done}/{total}", flush=True)
             # if clear:
             #     print(f"\r\033[K", end="", flush=False)
@@ -57,16 +61,15 @@ class Parallel:
             #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
             # print("", end="", flush=True)
 
-            renderer.render(result, progress=(done, total))
+            renderer.render(result, progress)
 
         print_progress(clear=False)
 
         async def worker():
-            nonlocal done
             while True:
                 job = await queue.get()
                 await job()
-                done += 1
+                progress.done += 1
                 print_progress()
                 queue.task_done()
 
