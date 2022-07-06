@@ -5,6 +5,35 @@ from gobexec.output.renderer import Renderer
 
 
 @dataclass
+class Sequential:
+    def execute(self, result, jobs, renderer: Renderer) -> None:
+        total = len(jobs)
+        done = 0
+        print()
+
+        def print_progress(clear=True):
+            print(f"\r\033[K{done}/{total}", end="", flush=True)
+            # print(f"{done}/{total}", flush=True)
+            # if clear:
+            #     print(f"\r\033[K", end="", flush=False)
+            # for group in self.groups:
+            #     for benchmark in group.benchmarks:
+            #         for tool in self.tools:
+            #             print("#" if (tool, benchmark) in dones else ".", end="", flush=False)
+            # print("", end="", flush=True)
+
+            renderer.render(result, progress=(done, total))
+
+        print_progress(clear=False)
+
+        for job in jobs:
+            asyncio.run(job())
+            done += 1
+            print_progress()
+
+        renderer.render(result)
+
+@dataclass
 class Parallel:
     num_workers: int
 
