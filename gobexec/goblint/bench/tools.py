@@ -47,7 +47,38 @@ class AssertCounter(Tool[Single, AssertCount]):
         return AssertCount(len(re.findall(r"__assert_fail", stdout.decode("utf-8"))) - 1)
 
 
-class DuetTool(Tool[Single, AssertSummary]):
+@dataclass(init=False)
+class DuetAssertSummary(Result):
+    success: int
+    error: int
+    valid: bool
+
+    def __init__(self,
+                 success: int,
+                 error: int,
+                 valid: bool
+                 ) -> None:
+        self.success = success
+        self.error = error
+        self.valid = valid
+
+    def template(self, env):
+        return env.get_template("duetassertsummary.jinja")
+
+    @property
+    def kind(self):
+        # TODO: generalize to all results
+        if not self.valid:
+            return "" # TODO: missing class
+        if self.success == 0:
+            return "danger"
+        elif self.error == 0:
+            return "success"
+        else:
+            return "warning"
+
+
+class DuetTool(Tool[Single, DuetAssertSummary]):
     name: str
     program: str
     args: List[str]
@@ -67,7 +98,7 @@ class DuetTool(Tool[Single, AssertSummary]):
         self.cwd = cwd
         self.assert_counter = assert_counter
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertSummary:
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> DuetAssertSummary:
         args = [self.program] + \
                self.args + \
                [str(file) for file in benchmark.files]
@@ -89,7 +120,7 @@ class DuetTool(Tool[Single, AssertSummary]):
             if self.assert_counter:
                 total = (await ec.get_tool_result(self.assert_counter)).total
                 if error + safe != total:
-                    return AssertSummary(0, 0, 0) # TODO: invalid result
-            return AssertSummary(success=safe, warning=0, error=error)
+                    return DuetAssertSummary(0, 0, False) # TODO: invalid result
+            return DuetAssertSummary(success=safe, error=error, valid=True)
         else:
-            return AssertSummary(success=0, warning=0, error=0) # TODO: crash result
+            return DuetAssertSummary(success=0, error=0, valid=False) # TODO: crash result
