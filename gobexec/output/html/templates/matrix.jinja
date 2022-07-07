@@ -21,9 +21,9 @@
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
             {% if benchmark_result.result().result.kind %}
-            <td class="bg-{{ benchmark_result.result().result.kind }} bg-opacity-25">
+            <td class="text-nowrap bg-{{ benchmark_result.result().result.kind }} bg-opacity-25">
             {% else %}
-            <td>
+            <td class="text-nowrap">
             {% endif %}
             {{ benchmark_result.result().result|template }}
             </td>
