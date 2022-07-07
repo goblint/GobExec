@@ -57,10 +57,12 @@ class AssertSummary(Result):
 
     @property
     def kind(self):
+        bad = self.warning + self.error
+        good = self.success + (self.unreachable or 0)
         # TODO: generalize to all results
-        if self.success == 0:
+        if good == 0:
             return "danger"
-        elif self.warning == 0 and self.error == 0:
+        elif bad == 0:
             return "success"
         else:
             return "warning"
