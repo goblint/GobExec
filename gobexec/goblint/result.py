@@ -32,6 +32,16 @@ class AssertSummary:
     def template(self, env):
         return env.get_template("assertsummary.jinja")
 
+    @property
+    def kind(self):
+        # TODO: generalize to all results
+        if self.success == 0:
+            return "danger"
+        elif self.warning == 0 and self.error == 0:
+            return "success"
+        else:
+            return "warning"
+
     @staticmethod
     async def extract(ctx, stdout) -> 'AssertSummary':
         stdout = stdout.decode("utf-8")

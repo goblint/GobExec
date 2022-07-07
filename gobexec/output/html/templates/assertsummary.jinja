@@ -1,10 +1,10 @@
-{% if this.success == 0 %}
+{#{% if this.success == 0 %}
 <span class="bg-danger bg-opacity-50">
 {% elif this.warning == 0 and this.error == 0 %}
 <span class="bg-success bg-opacity-50">
 {% else %}
 <span class="bg-warning bg-opacity-50">
-{% endif %}
+{% endif %}#}
 <span class="text-success">{{ this.success }}</span>,
 <span class="text-warning">{{ this.warning }}</span>,
 <span class="text-danger">{{ this.error }}</span>

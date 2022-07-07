@@ -19,11 +19,17 @@
         {% endif %}
             <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
-            <td>
             {% if benchmark_result.done() %}
-            {{ benchmark_result.result().result|template }}
+            {% if benchmark_result.result().result.kind %}
+            <td class="bg-{{ benchmark_result.result().result.kind }} bg-opacity-25">
+            {% else %}
+            <td>
             {% endif %}
+            {{ benchmark_result.result().result|template }}
             </td>
+            {% else %}
+            <td></td>
+            {% endif %}
         {% endfor %}
         </tr>
     {% endfor %}
