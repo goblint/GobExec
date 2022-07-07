@@ -7,12 +7,16 @@ from typing import List, Optional
 from gobexec.goblint import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
 from gobexec.model.benchmark import Single
+# from gobexec.model.result import Result
 from gobexec.model.tool import Tool
 
 
-@dataclass
+@dataclass(init=False)
 class AssertCount:
     total: int
+
+    def __init__(self, total: int) -> None:
+        self.total = total
 
     def template(self, env):
         return env.from_string("{{ this.total }}")
@@ -29,7 +33,7 @@ class AssertCounter(Tool[Single, AssertCount]):
         self.name = name
         self.cwd = cwd
 
-    async def run_async(self, ctx, benchmark: Single):
+    async def run_async(self, ctx, benchmark: Single) -> AssertCount:
         p = await asyncio.create_subprocess_exec(
             "gcc", "-E", *[str(file) for file in benchmark.files],
             # capture_output=True,
@@ -59,7 +63,7 @@ class DuetTool(Tool[Single, AssertSummary]):
         self.args = args if args else []
         self.cwd = cwd
 
-    async def run_async(self, ctx, benchmark: Single):
+    async def run_async(self, ctx, benchmark: Single) -> AssertSummary:
         args = [self.program] + \
                self.args + \
                [str(file) for file in benchmark.files]

@@ -1,26 +1,28 @@
 import asyncio
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import List, Any
+from typing import List, Any, TypeVar, Generic
 
 from gobexec.model.benchmark import Group, Single
-from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
+from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult, Result
 from gobexec.model.tool import Tool
 from gobexec.output.renderer import Renderer
 
 
 sem: ContextVar[asyncio.BoundedSemaphore] = ContextVar("sem")
 
+R = TypeVar('R', bound=Result)
+
 
 @dataclass
-class Matrix:
+class Matrix(Generic[R]):
     groups: List[Group]
-    tools: List[Tool[Single, Any]]
+    tools: List[Tool[Single, R]]
 
-    async def execute(self, progress, render) -> MatrixResult:
+    async def execute(self, progress, render) -> MatrixResult[R]:
         matrix_result = MatrixResult(self.tools, [])
 
-        def job(i, j, benchmark, k, tool, ctx):
+        def job(i, j, benchmark: Single, k, tool: Tool[Single, R], ctx):
             # workaround to force coroutine to copy arguments
             async def job():
                 progress.total += 1
