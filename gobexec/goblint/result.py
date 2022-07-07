@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from gobexec.model.base import Result
+from gobexec.model.context import ExecutionContext
 
 
 @dataclass(init=False)
@@ -25,7 +26,7 @@ class RaceSummary(Result):
         return env.get_template("racesummary.jinja")
 
     @staticmethod
-    async def extract(stdout: bytes) -> 'RaceSummary':
+    async def extract(ec: ExecutionContext, stdout: bytes) -> 'RaceSummary':
         stdout = stdout.decode("utf-8")
         safe = int(re.search(r"safe:\s+(\d+)", stdout).group(1))
         vulnerable = int(re.search(r"vulnerable:\s+(\d+)", stdout).group(1))
@@ -65,7 +66,7 @@ class AssertSummary(Result):
             return "warning"
 
     @staticmethod
-    async def extract(ctx, stdout: bytes) -> 'AssertSummary':
+    async def extract(ec: ExecutionContext, stdout: bytes) -> 'AssertSummary':
         stdout = stdout.decode("utf-8")
         success = len(re.findall(r"\[Success]\[Assert]", stdout))
         warning = len(re.findall(r"\[Warning]\[Assert]", stdout))

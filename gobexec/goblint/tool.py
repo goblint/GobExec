@@ -6,6 +6,7 @@ from typing import List, Optional, TypeVar, Protocol
 from gobexec.goblint.result import RaceSummary
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Single
+from gobexec.model.context import ExecutionContext
 from gobexec.model.tool import Tool
 
 ARGS_TOOL_KEY = "goblint-args"
@@ -15,7 +16,7 @@ R = TypeVar('R', bound=Result)
 
 
 class ResultExtractor(Protocol[R]):
-    async def extract(self, ctx, stdout: bytes) -> R:
+    async def extract(self, ec: ExecutionContext, stdout: bytes) -> R:
         ...
 
 
@@ -51,7 +52,7 @@ class GoblintTool(Tool[Single, R]):
     #     print(p.stderr)
     #     return RaceExtract().extract(p.stdout)
 
-    async def run_async(self, ctx, benchmark: Single) -> R: # TODO: why incompatible
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> R: # TODO: why incompatible
         with tempfile.TemporaryDirectory() as tmp:
             args = [self.program] + \
                    ["--set", "goblint-dir", tmp] + \
@@ -69,4 +70,4 @@ class GoblintTool(Tool[Single, R]):
             )
             stdout, stderr = await p.communicate()
             # print(stderr)
-            return await self.result.extract(ctx, stdout)
+            return await self.result.extract(ec, stdout)

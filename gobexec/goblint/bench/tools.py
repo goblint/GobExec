@@ -7,6 +7,7 @@ from typing import List, Optional
 from gobexec.goblint.tool import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
 from gobexec.model.benchmark import Single
+from gobexec.model.context import ExecutionContext
 from gobexec.model.result import Result
 from gobexec.model.tool import Tool
 
@@ -33,7 +34,7 @@ class AssertCounter(Tool[Single, AssertCount]):
         self.name = name
         self.cwd = cwd
 
-    async def run_async(self, ctx, benchmark: Single) -> AssertCount:
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertCount:
         p = await asyncio.create_subprocess_exec(
             "gcc", "-E", *[str(file) for file in benchmark.files],
             # capture_output=True,
@@ -63,7 +64,7 @@ class DuetTool(Tool[Single, AssertSummary]):
         self.args = args if args else []
         self.cwd = cwd
 
-    async def run_async(self, ctx, benchmark: Single) -> AssertSummary:
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertSummary:
         args = [self.program] + \
                self.args + \
                [str(file) for file in benchmark.files]
