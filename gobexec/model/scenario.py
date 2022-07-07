@@ -1,9 +1,9 @@
 import asyncio
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import List
+from typing import List, Any
 
-from gobexec.model.benchmark import Group
+from gobexec.model.benchmark import Group, Single
 from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
 from gobexec.model.tool import Tool
 from gobexec.output.renderer import Renderer
@@ -15,7 +15,7 @@ sem: ContextVar[asyncio.BoundedSemaphore] = ContextVar("sem")
 @dataclass
 class Matrix:
     groups: List[Group]
-    tools: List[Tool]
+    tools: List[Tool[Single, Any]]
 
     async def execute(self, progress, render) -> MatrixResult:
         matrix_result = MatrixResult(self.tools, [])

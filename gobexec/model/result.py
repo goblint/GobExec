@@ -1,7 +1,7 @@
 import asyncio
 from asyncio import Task
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from gobexec.model.benchmark import Single, Group
 from gobexec.model.tool import Tool
@@ -10,14 +10,14 @@ from gobexec.model.tool import Tool
 @dataclass
 class SingleToolResult:
     benchmark: Single
-    tool: Tool
-    result: str
+    tool: Tool[Single, Any]
+    result: Any
 
 
 @dataclass
 class SingleToolsResult:
     benchmark: Single
-    tools: List[Tool]
+    tools: List[Tool[Single, Any]]
     results: List[Task[SingleToolResult]]
 
     async def join(self) -> None:
@@ -35,7 +35,7 @@ class GroupToolsResult:
 
 @dataclass
 class MatrixResult:
-    tools: List[Tool]
+    tools: List[Tool[Single, Any]]
     groups: List[GroupToolsResult]
 
     async def join(self) -> None:

@@ -47,9 +47,12 @@ class Conf:
     param: str
 
     def to_tool(self, base_tool:GoblintTool) -> GoblintTool:
-        return dataclasses.replace(base_tool,
+        return GoblintTool(
             name=self.name,
-            args=base_tool.args + shlex.split(self.param)
+            args=base_tool.args + shlex.split(self.param),
+            program=base_tool.program,
+            cwd=base_tool.cwd,
+            result=base_tool.result
         )
 
 

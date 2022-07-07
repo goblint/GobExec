@@ -1,8 +1,9 @@
-from typing import Protocol
+from typing import Protocol, TypeVar
 
-from gobexec.model.benchmark import Single
+B = TypeVar('B')
+R = TypeVar('R')
 
 
-class Tool(Protocol):
-    def run(self, benchmark: Single) -> str:
-        pass
+class Tool(Protocol[B, R]):
+    async def run_async(self, ctx, benchmark: B) -> R:
+        ...

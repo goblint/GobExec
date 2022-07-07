@@ -7,6 +7,7 @@ from typing import List, Optional
 from gobexec.goblint import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
 from gobexec.model.benchmark import Single
+from gobexec.model.tool import Tool
 
 
 @dataclass
@@ -17,10 +18,16 @@ class AssertCount:
         return env.from_string("{{ this.total }}")
 
 
-@dataclass
-class AssertCounter:
+class AssertCounter(Tool[Single, AssertCount]):
     name = "asserts"
     cwd: Path
+
+    def __init__(self,
+                 cwd: Path,
+                 name: str = "asserts"
+                 ) -> None:
+        self.name = name
+        self.cwd = cwd
 
     async def run_async(self, ctx, benchmark: Single):
         p = await asyncio.create_subprocess_exec(
@@ -35,12 +42,22 @@ class AssertCounter:
         return AssertCount(len(re.findall(r"__assert_fail", stdout.decode("utf-8"))) - 1)
 
 
-@dataclass
-class DuetTool:
-    name: str = "Duet"
-    program: str = "duet.exe"
-    args: List[str] = field(default_factory=list)
-    cwd: Optional[Path] = None
+class DuetTool(Tool[Single, AssertSummary]):
+    name: str
+    program: str
+    args: List[str]
+    cwd: Optional[Path]
+
+    def __init__(self,
+                 name: str = "Duet",
+                 program: str = "duet.exe",
+                 args: List[str] = None,
+                 cwd: Optional[Path] = None
+                 ) -> None:
+        self.name = name
+        self.program = program
+        self.args = args if args else []
+        self.cwd = cwd
 
     async def run_async(self, ctx, benchmark: Single):
         args = [self.program] + \
