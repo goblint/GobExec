@@ -1,19 +1,23 @@
 {% set result = this %}
-<table>
-<tr>
-    <th>Group</th>
-    <th>Benchmark</th>
-{% for tool in result.tools %}
-    <th>{{ tool.name }}</th>
-{% endfor %}
-</tr>
+<div class="table-responsive">
+<table class="table table-hover table-sm">
+<thread class="table-light">
+    <tr>
+        <th scope="col">Group</th>
+        <th scope="col">Benchmark</th>
+    {% for tool in result.tools %}
+        <th scope="col">{{ tool.name }}</th>
+    {% endfor %}
+    </tr>
+</thead>
+<tbody>
 {% for group_result in result.groups %}
     {% for benchmark_results in group_result.benchmarks %}
         <tr>
         {% if loop.first %}
-            <td rowspan={{ group_result.benchmarks|length }} style="vertical-align: top;">{{ group_result.group.name }}</td>
+            <th scope="row" rowspan={{ group_result.benchmarks|length }} style="vertical-align: top;">{{ group_result.group.name }}</th>
         {% endif %}
-            <td>{{ benchmark_results.benchmark.name }}</td>
+            <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             <td>
             {% if benchmark_result.done() %}
@@ -24,4 +28,6 @@
         </tr>
     {% endfor %}
 {% endfor %}
+</tbody>
 </table>
+</div>

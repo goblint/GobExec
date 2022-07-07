@@ -6,8 +6,10 @@
 {% endblock %}
 {% block body %}
     <p>
-        <progress value={{ progress.done }} max={{ progress.total }}></progress>
-        {{ progress.done }}/{{ progress.total }} (active: {{ progress.active }})
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: {{ progress.done / progress.total * 100 }}%" aria-valuenow={{ progress.done }} aria-valuemin=0 aria-valuemax={{ progress.total }}>{{ progress.done }}</div>
+            <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress.active / progress.total * 100 }}%" aria-valuenow={{ progress.active }} aria-valuemin=0 aria-valuemax={{ progress.total }}>{{ progress.active }}</div>
+        </div>
     </p>
     {{ super() }}
 {% endblock %}

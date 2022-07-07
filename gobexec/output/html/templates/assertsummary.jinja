@@ -1,14 +1,14 @@
 {% if this.success == 0 %}
-<span style="background-color: pink">
+<span class="bg-danger bg-opacity-50">
 {% elif this.warning == 0 and this.error == 0 %}
-<span style="background-color: lightgreen">
+<span class="bg-success bg-opacity-50">
 {% else %}
-<span style="background-color: NavajoWhite">
+<span class="bg-warning bg-opacity-50">
 {% endif %}
-<font color="green">{{ this.success }}</font>,
-<font color="orange">{{ this.warning }}</font>,
-<font color="red">{{ this.error }}</font>
+<span class="text-success">{{ this.success }}</span>,
+<span class="text-warning">{{ this.warning }}</span>,
+<span class="text-danger">{{ this.error }}</span>
 {% if this.total %}
-{{ this.total }}
+<span class="text-secondary">{{ this.total }}</span>
 {% endif %}
 </span>
