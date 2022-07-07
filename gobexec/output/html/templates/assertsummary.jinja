@@ -6,8 +6,8 @@
 <span class="bg-warning bg-opacity-50">
 {% endif %}#}
 {% if this.unreachable is not none %}
-<span class="text-info">{{ this.unreachable }}</span>,
+<span class="text-info" title="unreachable">{{ this.unreachable }}</span>,
 {% endif %}
-<span class="text-success">{{ this.success }}</span>,
-<span class="text-warning">{{ this.warning }}</span>,
-<span class="text-danger">{{ this.error }}</span>
+<span class="text-success" title="pass">{{ this.success }}</span>,
+<span class="text-warning" title="unknown">{{ this.warning }}</span>,
+<span class="text-danger" title="fail">{{ this.error }}</span>
