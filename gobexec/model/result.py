@@ -1,18 +1,11 @@
 import asyncio
 from asyncio import Task
 from dataclasses import dataclass
-from typing import List, Optional, Any, Protocol, TypeVar, Generic
+from typing import List, TypeVar, Generic
 
-from jinja2 import Environment, Template
-
+from gobexec.model.base import Result
 from gobexec.model.benchmark import Single, Group
 from gobexec.model.tool import Tool
-
-
-class Result(Protocol):
-    def template(self, env: Environment) -> Template:
-        ...
-
 
 R = TypeVar('R', bound=Result)
 

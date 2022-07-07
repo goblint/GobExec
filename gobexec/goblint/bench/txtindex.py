@@ -6,7 +6,7 @@ from typing import Optional, List
 import re
 
 import gobexec.model.benchmark
-from gobexec.goblint import GoblintTool
+from gobexec.goblint.tool import GoblintTool
 from gobexec.model.scenario import Matrix
 
 
@@ -23,8 +23,8 @@ class Benchmark:
             description=self.info,
             files=[self.path.relative_to(self.path.parent)],
             tool_data={
-                gobexec.goblint.ARGS_TOOL_KEY: shlex.split(self.param) if self.param else [],
-                gobexec.goblint.CWD_TOOL_KEY: self.path.parent
+                gobexec.goblint.tool.ARGS_TOOL_KEY: shlex.split(self.param) if self.param else [],
+                gobexec.goblint.tool.CWD_TOOL_KEY: self.path.parent
             }
         )
 

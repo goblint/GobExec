@@ -4,15 +4,15 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Optional
 
-from gobexec.goblint import CWD_TOOL_KEY
+from gobexec.goblint.tool import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
 from gobexec.model.benchmark import Single
-# from gobexec.model.result import Result
+from gobexec.model.result import Result
 from gobexec.model.tool import Tool
 
 
 @dataclass(init=False)
-class AssertCount:
+class AssertCount(Result):
     total: int
 
     def __init__(self, total: int) -> None:

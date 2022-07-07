@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import List, Any, TypeVar, Generic
 
 from gobexec.model.benchmark import Group, Single
-from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult, Result
+from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
+from gobexec.model.base import Result
 from gobexec.model.tool import Tool
 from gobexec.output.renderer import Renderer
 

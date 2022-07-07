@@ -3,10 +3,11 @@ from pathlib import Path
 
 from gobexec import executor
 from gobexec.executor import Progress
-from gobexec.goblint import GoblintTool
+from gobexec.goblint.tool import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.bench.tools import DuetTool
-from gobexec.goblint.result import AssertSummary, AssertSummaryChecker
+from gobexec.goblint.result import AssertSummary
+from gobexec.goblint.extractor import AssertSummaryChecker
 from gobexec.model import scenario
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 

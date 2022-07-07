@@ -1,11 +1,8 @@
 import re
 from dataclasses import dataclass
-from typing import Optional, Any, ForwardRef
+from typing import Optional
 
-# from gobexec.goblint import ResultExtractor
-# from gobexec.goblint.bench.tools import AssertCount
-from gobexec.model.result import Result
-from gobexec.model.tool import Tool
+from gobexec.model.base import Result
 
 
 @dataclass(init=False)
@@ -76,16 +73,3 @@ class AssertSummary(Result):
         return AssertSummary(success, warning, error)
 
 
-class AssertSummaryChecker:
-    assert_counter: Tool[Any, 'AssertCount']
-
-    def __init__(self, assert_counter: Tool[Any, 'AssertCount']) -> None:
-        self.assert_counter = assert_counter
-
-    async def extract(self, ctx, stdout: bytes) -> AssertSummary:
-        summary = await AssertSummary.extract(ctx, stdout)
-        # TODO: better way to find other results
-        for tool, result in zip(ctx.tools, ctx.results):
-            if tool == self.assert_counter:
-                summary.total = (await result).result.total
-        return summary
