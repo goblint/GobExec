@@ -2,7 +2,7 @@ import asyncio
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from gobexec.goblint.tool import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
@@ -52,17 +52,20 @@ class DuetTool(Tool[Single, AssertSummary]):
     program: str
     args: List[str]
     cwd: Optional[Path]
+    assert_counter: Optional[Tool[Any, AssertCount]]
 
     def __init__(self,
                  name: str = "Duet",
                  program: str = "duet.exe",
                  args: List[str] = None,
-                 cwd: Optional[Path] = None
+                 cwd: Optional[Path] = None,
+                 assert_counter: Optional[Tool[Any, AssertCount]] = None
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
         self.cwd = cwd
+        self.assert_counter = assert_counter
 
     async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertSummary:
         args = [self.program] + \
@@ -83,6 +86,10 @@ class DuetTool(Tool[Single, AssertSummary]):
             stdout = stdout.decode("utf-8")
             error = int(re.search(r"(\d+) errors total", stdout).group(1))
             safe = int(re.search(r"(\d+) safe assertions", stdout).group(1))
+            if self.assert_counter:
+                total = (await ec.get_tool_result(self.assert_counter)).total
+                if error + safe != total:
+                    return AssertSummary(0, 0, 0) # TODO: invalid result
             return AssertSummary(success=safe, warning=0, error=error)
         else:
             return AssertSummary(success=0, warning=0, error=0) # TODO: crash result

@@ -39,18 +39,18 @@ class AssertSummary(Result):
     success: int
     warning: int
     error: int
-    total: Optional[int] = None
+    unreachable: Optional[int] = None
 
     def __init__(self,
                  success: int,
                  warning: int,
                  error: int,
-                 total: Optional[int] = None
+                 unreachable: Optional[int] = None
                  ) -> None:
         self.success = success
         self.warning = warning
         self.error = error
-        self.total = total
+        self.unreachable = unreachable
 
     def template(self, env):
         return env.get_template("assertsummary.jinja")
@@ -64,13 +64,3 @@ class AssertSummary(Result):
             return "success"
         else:
             return "warning"
-
-    @staticmethod
-    async def extract(ec: ExecutionContext, stdout: bytes) -> 'AssertSummary':
-        stdout = stdout.decode("utf-8")
-        success = len(re.findall(r"\[Success]\[Assert]", stdout))
-        warning = len(re.findall(r"\[Warning]\[Assert]", stdout))
-        error = len(re.findall(r"\[Error]\[Assert]", stdout))
-        return AssertSummary(success, warning, error)
-
-

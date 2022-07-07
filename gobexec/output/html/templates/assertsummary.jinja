@@ -5,10 +5,10 @@
 {% else %}
 <span class="bg-warning bg-opacity-50">
 {% endif %}#}
+{% if this.unreachable is not none %}
+<span class="text-info">{{ this.unreachable }}</span>,
+{% endif %}
 <span class="text-success">{{ this.success }}</span>,
 <span class="text-warning">{{ this.warning }}</span>,
 <span class="text-danger">{{ this.error }}</span>
-{% if this.total %}
-<span class="text-secondary">{{ this.total }}</span>
-{% endif %}
 </span>

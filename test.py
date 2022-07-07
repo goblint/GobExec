@@ -7,7 +7,7 @@ from gobexec.goblint.tool import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.bench.tools import DuetTool
 from gobexec.goblint.result import AssertSummary
-from gobexec.goblint.extractor import AssertSummaryChecker
+from gobexec.goblint.extractor import AssertSummaryExtractor
 from gobexec.model import scenario
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
@@ -16,12 +16,13 @@ goblint = GoblintTool(
     program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
     args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"],
     cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
-    result=AssertSummaryChecker(assert_counter)
+    result=AssertSummaryExtractor(assert_counter)
 )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
     args=["-coarsen", "-inline", "-domain", "oct"],
-    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
+    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
+    assert_counter=assert_counter
 )
 index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = index.to_matrix(goblint)
