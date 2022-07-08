@@ -1,5 +1,5 @@
 import asyncio
-from asyncio import Future
+from asyncio import Future, Task
 from dataclasses import dataclass
 from typing import List, Any, TypeVar, Generic, Dict
 
@@ -15,7 +15,7 @@ R = TypeVar('R', bound=Result)
 
 class MatrixExecutionContext(ExecutionContext):
     benchmark_results: SingleToolsResult
-    cache: Dict[int, Future[SingleToolResult]]
+    cache: Dict[int, Task[SingleToolResult]]
     progress: Progress
 
     def __init__(self, benchmark_results: SingleToolsResult, progress: Progress) -> None:
@@ -43,14 +43,16 @@ class MatrixExecutionContext(ExecutionContext):
 
         return job
 
-    async def get_tool_result(self, tool: Tool[Any, R]) -> R:
+    def get_tool_future(self, tool: Tool[Any, R]) -> Task[SingleToolResult]:
         # print(1, tool)
         if id(tool) not in self.cache: # hidden tool
             # print(1.5, tool)
             self.cache[id(tool)] = asyncio.create_task(self.job(tool, self.benchmark_results.benchmark)())
         # print(2, tool, self.cache[id(tool)])
-        result = await self.cache[id(tool)]
-        # print(3, tool)
+        return self.cache[id(tool)]
+
+    async def get_tool_result(self, tool: Tool[Any, R]) -> R:
+        result = await self.get_tool_future(tool)
         return result.result
 
 
@@ -61,16 +63,15 @@ class Matrix(Generic[R]):
 
     async def execute(self, progress, render) -> MatrixResult[R]:
         matrix_result = MatrixResult(self.tools, [])
-        for i, group in enumerate(self.groups):
+        for group in self.groups:
             group_result = GroupToolsResult(group, [])
-            for j, benchmark in enumerate(group.benchmarks):
+            for benchmark in group.benchmarks:
                 benchmark_results = SingleToolsResult(benchmark, self.tools, [])
                 ec = MatrixExecutionContext(benchmark_results, progress)
-                for k, tool in enumerate(self.tools):
-                    task = asyncio.create_task(ec.job(tool, benchmark)())
+                for tool in self.tools:
+                    task = ec.get_tool_future(tool)
                     task.add_done_callback(lambda _: render())
                     benchmark_results.results.append(task)
-                    ec.cache[id(tool)] = task
                 group_result.benchmarks.append(benchmark_results)
             matrix_result.groups.append(group_result)
 
