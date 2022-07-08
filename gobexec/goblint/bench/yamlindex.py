@@ -3,6 +3,8 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 import yaml
 
+# TODO: inline and remove all dataclasses, construct Matrix directly
+
 
 @dataclass
 class Benchmark:

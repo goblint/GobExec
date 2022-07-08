@@ -26,8 +26,7 @@ duet = DuetTool(
     assert_counter=assert_counter
 )
 # index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
-index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"))
-matrix = index.to_matrix(goblint)
+matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"), goblint)
 matrix.tools.append(duet)
 matrix.tools.insert(0, assert_counter)
 

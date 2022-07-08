@@ -1,116 +1,59 @@
-import dataclasses
-import shlex
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional, List
 import re
+import shlex
+from pathlib import Path
+from typing import List, TypeVar
 
-import gobexec.model.benchmark
-from gobexec.goblint.tool import GoblintTool
+from gobexec.goblint.tool import GoblintTool, ARGS_TOOL_KEY, CWD_TOOL_KEY
+from gobexec.model.base import Result
+from gobexec.model.benchmark import Group, Single
 from gobexec.model.scenario import Matrix
 
 
-@dataclass
-class Benchmark:
-    name: str
-    info: str
-    path: Path
-    param: Optional[str]
-
-    def to_single(self) -> gobexec.model.benchmark.Single:
-        return gobexec.model.benchmark.Single(
-            name=self.name,
-            description=self.info,
-            files=[self.path.relative_to(self.path.parent)],
-            tool_data={
-                gobexec.goblint.tool.ARGS_TOOL_KEY: shlex.split(self.param) if self.param else [],
-                gobexec.goblint.tool.CWD_TOOL_KEY: self.path.parent
-            }
-        )
+R = TypeVar('R', bound=Result)
 
 
-@dataclass
-class Group:
-    name: str
-    benchmarks: List[Benchmark]
+def load(path: Path, base_tool: GoblintTool[R]) -> Matrix[R]:
+    with path.open() as file:
+        tools: List[GoblintTool[R]] = []
+        groups: List[Group] = []
 
-    def to_group(self) -> gobexec.model.benchmark.Group:
-        return gobexec.model.benchmark.Group(
-            name=self.name,
-            benchmarks=[benchmark.to_single() for benchmark in self.benchmarks]
-        )
+        while line := file.readline():
+            line = line.strip()
+            if not line:
+                continue
 
-
-@dataclass
-class Conf:
-    name: str
-    param: str
-
-    def to_tool(self, base_tool:GoblintTool) -> GoblintTool:
-        return GoblintTool(
-            name=self.name,
-            args=base_tool.args + shlex.split(self.param),
-            program=base_tool.program,
-            cwd=base_tool.cwd,
-            result=base_tool.result
-        )
-
-
-@dataclass
-class Index:
-    name: str
-    confs: List[Conf]
-    groups: List[Group]
-
-    def to_matrix(self, base_tool:GoblintTool) -> Matrix:
-        return Matrix(
-            tools=[conf.to_tool(base_tool) for conf in self.confs],
-            groups=[group.to_group() for group in self.groups]
-        )
-
-    @staticmethod
-    def from_path(path: Path) -> 'Index':
-        with path.open() as file:
-            confs: List[Conf] = []
-            groups: List[Group] = []
-
-            while line := file.readline():
-                line = line.strip()
-                if not line:
-                    continue
-
-                m = re.match(r"(.*): ?(.*)", line)
-                if m:
-                    name = m.group(1)
-                    if name == "Group":
-                        groups.append(Group(name=m.group(2), benchmarks=[]))
-                    else:
-                        conf = Conf(
-                            name=name,
-                            param=m.group(2)
-                        )
-                        confs.append(conf)
+            m = re.match(r"(.*): ?(.*)", line)
+            if m:
+                name = m.group(1)
+                if name == "Group":
+                    groups.append(Group(name=m.group(2), benchmarks=[]))
                 else:
-                    name = line
-                    info = file.readline().strip()
-                    bpath = Path(file.readline().strip())
-                    param = file.readline().strip()
-                    if param == "-":
-                        param = None
-                    benchmark = Benchmark(
+                    tools.append(GoblintTool(
                         name=name,
-                        info=info,
-                        path=bpath,
-                        param=param,
-                    )
-                    groups[-1].benchmarks.append(benchmark)
+                        args=base_tool.args + shlex.split(m.group(2)),
+                        program=base_tool.program,
+                        cwd=base_tool.cwd,
+                        result=base_tool.result
+                    ))
+            else:
+                name = line
+                info = file.readline().strip()
+                bpath = Path(file.readline().strip())
+                param = file.readline().strip()
+                if param == "-":
+                    param = None
+                groups[-1].benchmarks.append(Single(
+                    name=name,
+                    description=info,
+                    files=[bpath.relative_to(bpath.parent)],
+                    tool_data={
+                        ARGS_TOOL_KEY: shlex.split(param) if param else [],
+                        CWD_TOOL_KEY: bpath.parent
+                    }
+                ))
 
-            return Index(
-                name=path.stem,
-                confs=confs,
-                groups=groups
-            )
-
-
-if __name__ == '__main__':
-    print(Index.from_path(Path("traces.txt")))
+        # TODO: name=path.stem
+        return Matrix(
+            tools=tools,
+            groups=groups
+        )
