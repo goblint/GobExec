@@ -27,13 +27,7 @@ class MatrixExecutionContext(ExecutionContext):
         self.cache = {}
 
     async def get_tool_result(self, tool: Tool[Any, R]) -> R:
-        # TODO: better way to find other results
-        for tool2, result in zip(self.benchmark_results.tools, self.benchmark_results.results):
-            if tool2 is tool:
-                return (await result).result
-
-        # hidden tool
-        if id(tool) not in self.cache:
+        if id(tool) not in self.cache: # hidden tool
             self.cache[id(tool)] = asyncio.create_task(tool.run_async(self, self.benchmark_results.benchmark))
         return await self.cache[id(tool)]
 
@@ -73,6 +67,7 @@ class Matrix(Generic[R]):
                     task = asyncio.create_task(job(i, j, benchmark, k, tool, ec)())
                     task.add_done_callback(lambda _: render())
                     benchmark_results.results.append(task)
+                    ec.cache[id(tool)] = task
                 group_result.benchmarks.append(benchmark_results)
             matrix_result.groups.append(group_result)
 
