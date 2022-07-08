@@ -29,12 +29,12 @@ class MatrixExecutionContext(ExecutionContext):
         async def job():
             self.progress.total += 1
             # async with sem.get():
-            self.progress.active += 1
+            # self.progress.active += 1
             # print(f"running {tool}")
             out = await tool.run_async(self, benchmark)
             # print(out)
             self.progress.done += 1
-            self.progress.active -= 1
+            # self.progress.active -= 1
             return SingleToolResult(
                 benchmark=benchmark,
                 tool=tool,

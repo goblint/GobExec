@@ -36,7 +36,7 @@ renderer = MultiRenderer([html_renderer, console_renderer])
 
 async def main():
     tool.cpu_sem.set(asyncio.BoundedSemaphore(14))
-    progress = Progress(0, 0, 0)
+    progress = Progress(0, 0)
     result = await matrix.execute(progress, lambda: renderer.render(result, progress)) # tying the knot!
     await result.join()
     renderer.render(result)
