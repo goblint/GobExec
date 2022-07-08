@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import List, Optional, TypeVar, Generic
 
 from gobexec.goblint.result import RaceSummary
+from gobexec.model import tool
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext
@@ -62,14 +63,15 @@ class GoblintTool(Tool[Single, R]):
                    benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
                    [str(file) for file in benchmark.files]
             # print(args)
-            p = await asyncio.create_subprocess_exec(
-                args[0],
-                *args[1:],
-                # capture_output=True,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-            )
-            stdout, stderr = await p.communicate()
+            async with tool.cpu_sem.get():
+                p = await asyncio.create_subprocess_exec(
+                    args[0],
+                    *args[1:],
+                    # capture_output=True,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+                )
+                stdout, stderr = await p.communicate()
             # print(stderr)
             return await self.result.extract(ec, stdout)

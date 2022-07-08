@@ -6,6 +6,7 @@ from typing import List, Optional, Any
 
 from gobexec.goblint.tool import CWD_TOOL_KEY
 from gobexec.goblint.result import AssertSummary
+from gobexec.model import tool
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext
 from gobexec.model.result import Result
@@ -35,14 +36,15 @@ class AssertCounter(Tool[Single, AssertCount]):
         self.cwd = cwd
 
     async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertCount:
-        p = await asyncio.create_subprocess_exec(
-            "gcc", "-E", *[str(file) for file in benchmark.files],
-            # capture_output=True,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-        )
-        stdout, stderr = await p.communicate()
+        async with tool.cpu_sem.get():
+            p = await asyncio.create_subprocess_exec(
+                "gcc", "-E", *[str(file) for file in benchmark.files],
+                # capture_output=True,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+            )
+            stdout, stderr = await p.communicate()
         # print(stderr)
         return AssertCount(len(re.findall(r"__assert_fail", stdout.decode("utf-8"))) - 1)
 
@@ -103,15 +105,16 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
                self.args + \
                [str(file) for file in benchmark.files]
         # print(args)
-        p = await asyncio.create_subprocess_exec(
-            args[0],
-            *args[1:],
-            # capture_output=True,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-        )
-        stdout, stderr = await p.communicate()
+        async with tool.cpu_sem.get():
+            p = await asyncio.create_subprocess_exec(
+                args[0],
+                *args[1:],
+                # capture_output=True,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+            )
+            stdout, stderr = await p.communicate()
         # print(stderr)
         if p.returncode == 0:
             stdout = stdout.decode("utf-8")

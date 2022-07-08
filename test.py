@@ -1,14 +1,12 @@
 import asyncio
 from pathlib import Path
 
-from gobexec import executor
 from gobexec.executor import Progress
-from gobexec.goblint.tool import GoblintTool
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.bench.tools import DuetTool
-from gobexec.goblint.result import AssertSummary
 from gobexec.goblint.extractor import AssertSummaryExtractor
-from gobexec.model import scenario
+from gobexec.goblint.tool import GoblintTool
+from gobexec.model import tool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
 assert_counter = tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"))
@@ -28,7 +26,8 @@ duet = DuetTool(
 # index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"), goblint)
 matrix.tools.append(duet)
-# matrix.tools.insert(0, assert_counter)
+# matrix.tools.append(assert_counter)
+matrix.tools.insert(0, assert_counter)
 
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
@@ -36,7 +35,7 @@ renderer = MultiRenderer([html_renderer, console_renderer])
 
 
 async def main():
-    scenario.sem.set(asyncio.BoundedSemaphore(14))
+    tool.cpu_sem.set(asyncio.BoundedSemaphore(14))
     progress = Progress(0, 0, 0)
     result = await matrix.execute(progress, lambda: renderer.render(result, progress)) # tying the knot!
     await result.join()
