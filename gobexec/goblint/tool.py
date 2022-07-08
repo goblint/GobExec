@@ -1,4 +1,5 @@
 import asyncio
+import resource
 import tempfile
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -19,7 +20,7 @@ R = TypeVar('R', bound=Result)
 
 class ResultExtractor(ABC, Generic[R]):
     @abstractmethod
-    async def extract(self, ec: ExecutionContext, stdout: bytes) -> R:
+    async def extract(self, ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> R:
         ...
 
 
@@ -73,5 +74,6 @@ class GoblintTool(Tool[Single, R]):
                     cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
                 )
                 stdout, stderr = await p.communicate()
+            rusage = asyncio.get_child_watcher().rusages.pop(p.pid)
             # print(stderr)
-            return await self.result.extract(ec, stdout)
+            return await self.result.extract(ec, stdout, rusage)

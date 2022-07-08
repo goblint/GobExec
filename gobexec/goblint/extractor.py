@@ -1,4 +1,5 @@
 import re
+import resource
 from typing import Any, Optional
 
 from gobexec.goblint.bench.tools import AssertCount
@@ -14,7 +15,7 @@ class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
     def __init__(self, assert_counter: Optional[Tool[Any, AssertCount]] = None) -> None:
         self.assert_counter = assert_counter
 
-    async def extract(self, ec: ExecutionContext, stdout: bytes) -> AssertSummary:
+    async def extract(self, ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> AssertSummary:
         stdout = stdout.decode("utf-8")
         success = len(re.findall(r"\[Success]\[Assert]", stdout))
         warning = len(re.findall(r"\[Warning]\[Assert]", stdout))

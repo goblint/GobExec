@@ -1,10 +1,12 @@
 import asyncio
 from pathlib import Path
 
+from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
 from gobexec.executor import Progress
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.bench.tools import DuetTool
 from gobexec.goblint.extractor import AssertSummaryExtractor
+from gobexec.goblint.result import Rusage
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model import tool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
@@ -15,7 +17,8 @@ goblint = GoblintTool(
     # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"],
     args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
     cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
-    result=AssertSummaryExtractor(assert_counter)
+    # result=AssertSummaryExtractor(assert_counter)
+    result=Rusage
 )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
@@ -35,6 +38,11 @@ renderer = MultiRenderer([html_renderer, console_renderer])
 
 
 async def main():
+    loop = asyncio.get_event_loop()
+    rusage_child_watcher = RusageThreadedChildWatcher()
+    rusage_child_watcher.attach_loop(loop)
+    asyncio.set_child_watcher(rusage_child_watcher)
+
     tool.cpu_sem.set(asyncio.BoundedSemaphore(14))
     progress = Progress(0, 0)
     result = await matrix.execute(progress, lambda: renderer.render(result, progress)) # tying the knot!

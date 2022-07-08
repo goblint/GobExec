@@ -1,4 +1,5 @@
 import re
+import resource
 from dataclasses import dataclass
 from typing import Optional
 
@@ -26,7 +27,7 @@ class RaceSummary(Result):
         return env.get_template("racesummary.jinja")
 
     @staticmethod
-    async def extract(ec: ExecutionContext, stdout: bytes) -> 'RaceSummary':
+    async def extract(ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> 'RaceSummary':
         stdout = stdout.decode("utf-8")
         safe = int(re.search(r"safe:\s+(\d+)", stdout).group(1))
         vulnerable = int(re.search(r"vulnerable:\s+(\d+)", stdout).group(1))
@@ -66,3 +67,19 @@ class AssertSummary(Result):
             return "success"
         else:
             return "warning"
+
+
+@dataclass(init=False)
+class Rusage(Result):
+    rusage: resource.struct_rusage
+
+    def __init__(self, rusage) -> None:
+        super().__init__()
+        self.rusage = rusage
+
+    def template(self, env):
+        return env.from_string("{{ this.rusage.ru_utime }}")
+
+    @staticmethod
+    async def extract(ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> 'Rusage':
+        return Rusage(rusage)
