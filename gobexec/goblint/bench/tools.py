@@ -36,17 +36,14 @@ class AssertCounter(Tool[Single, AssertCount]):
         self.cwd = cwd
 
     async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertCount:
-        async with tool.cpu_sem.get():
-            p = await asyncio.create_subprocess_exec(
-                "gcc", "-E", *[str(file) for file in benchmark.files],
-                # capture_output=True,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-            )
-            stdout, stderr = await p.communicate()
-        # print(stderr)
-        return AssertCount(len(re.findall(r"__assert_fail", stdout.decode("utf-8"))) - 1)
+        cp = await ec.subprocess_exec(
+            "gcc", "-E", *[str(file) for file in benchmark.files],
+            # capture_output=True,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+        )
+        return AssertCount(len(re.findall(r"__assert_fail", cp.stdout.decode("utf-8"))) - 1)
 
 
 @dataclass(init=False)
@@ -105,19 +102,16 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
                self.args + \
                [str(file) for file in benchmark.files]
         # print(args)
-        async with tool.cpu_sem.get():
-            p = await asyncio.create_subprocess_exec(
-                args[0],
-                *args[1:],
-                # capture_output=True,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-            )
-            stdout, stderr = await p.communicate()
-        # print(stderr)
-        if p.returncode == 0:
-            stdout = stdout.decode("utf-8")
+        cp = await ec.subprocess_exec(
+            args[0],
+            *args[1:],
+            # capture_output=True,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+        )
+        if cp.process.returncode == 0:
+            stdout = cp.stdout.decode("utf-8")
             error = int(re.search(r"(\d+) errors total", stdout).group(1))
             safe = int(re.search(r"(\d+) safe assertions", stdout).group(1))
             if self.assert_counter:

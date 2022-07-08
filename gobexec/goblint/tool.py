@@ -64,16 +64,12 @@ class GoblintTool(Tool[Single, R]):
                    benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
                    [str(file) for file in benchmark.files]
             # print(args)
-            async with tool.cpu_sem.get():
-                p = await asyncio.create_subprocess_exec(
-                    args[0],
-                    *args[1:],
-                    # capture_output=True,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE,
-                    cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
-                )
-                stdout, stderr = await p.communicate()
-            rusage = asyncio.get_child_watcher().rusages.pop(p.pid)
-            # print(stderr)
-            return await self.result.extract(ec, stdout, rusage)
+            cp = await ec.subprocess_exec(
+                args[0],
+                *args[1:],
+                # capture_output=True,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+            )
+            return await self.result.extract(ec, cp.stdout, cp.rusage)

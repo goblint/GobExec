@@ -6,7 +6,7 @@ from typing import List, Any, TypeVar, Generic, Dict
 from gobexec.executor import Progress
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Group, Single
-from gobexec.model.context import ExecutionContext
+from gobexec.model.context import ExecutionContext, RootExecutionContext, CompletedSubprocess
 from gobexec.model.result import MatrixResult, GroupToolsResult, SingleToolsResult, SingleToolResult
 from gobexec.model.tool import Tool
 
@@ -14,15 +14,20 @@ R = TypeVar('R', bound=Result)
 
 
 class MatrixExecutionContext(ExecutionContext):
+    parent: RootExecutionContext
     benchmark_results: SingleToolsResult
     cache: Dict[int, Task[SingleToolResult]]
     progress: Progress
 
-    def __init__(self, benchmark_results: SingleToolsResult, progress: Progress) -> None:
+    def __init__(self, parent: RootExecutionContext, benchmark_results: SingleToolsResult, progress: Progress) -> None:
         super().__init__()
+        self.parent = parent
         self.benchmark_results = benchmark_results
         self.cache = {}
         self.progress = progress
+
+    async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:
+        return await self.parent.subprocess_exec(*args, **kwargs)
 
     async def job(self, tool: Tool[Single, R], benchmark: Single):
         with self.progress:
@@ -51,15 +56,15 @@ class Matrix(Generic[R]):
     groups: List[Group]
     tools: List[Tool[Single, R]]
 
-    async def execute(self, progress, render) -> MatrixResult[R]:
+    async def execute(self, ec: RootExecutionContext, progress, render) -> MatrixResult[R]:
         matrix_result = MatrixResult(self.tools, [])
         for group in self.groups:
             group_result = GroupToolsResult(group, [])
             for benchmark in group.benchmarks:
                 benchmark_results = SingleToolsResult(benchmark, self.tools, [])
-                ec = MatrixExecutionContext(benchmark_results, progress)
+                bec = MatrixExecutionContext(ec, benchmark_results, progress)
                 for tool in self.tools:
-                    task = ec.get_tool_future(tool)
+                    task = bec.get_tool_future(tool)
                     task.add_done_callback(lambda _: render())
                     benchmark_results.results.append(task)
                 group_result.benchmarks.append(benchmark_results)
