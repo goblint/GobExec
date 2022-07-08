@@ -1,7 +1,8 @@
 import asyncio
+from asyncio import Future
 from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import List, Any, TypeVar, Generic
+from typing import List, Any, TypeVar, Generic, Dict
 
 from gobexec.model.benchmark import Group, Single
 from gobexec.model.context import ExecutionContext
@@ -18,17 +19,24 @@ R = TypeVar('R', bound=Result)
 
 class MatrixExecutionContext(ExecutionContext):
     benchmark_results: SingleToolsResult
+    cache: Dict[int, Future[Result]]
 
     def __init__(self, benchmark_results: SingleToolsResult) -> None:
         super().__init__()
         self.benchmark_results = benchmark_results
+        self.cache = {}
 
     async def get_tool_result(self, tool: Tool[Any, R]) -> R:
         # TODO: better way to find other results
         for tool2, result in zip(self.benchmark_results.tools, self.benchmark_results.results):
             if tool2 is tool:
                 return (await result).result
-        raise KeyError()
+
+        # hidden tool
+        if id(tool) not in self.cache:
+            self.cache[id(tool)] = asyncio.create_task(tool.run_async(self, self.benchmark_results.benchmark))
+        return await self.cache[id(tool)]
+
 
 
 @dataclass

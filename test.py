@@ -28,7 +28,7 @@ duet = DuetTool(
 # index = txtindex.Index.from_path(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"))
 matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"), goblint)
 matrix.tools.append(duet)
-matrix.tools.insert(0, assert_counter)
+# matrix.tools.insert(0, assert_counter)
 
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
