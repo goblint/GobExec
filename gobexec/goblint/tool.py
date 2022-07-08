@@ -1,7 +1,8 @@
 import asyncio
 import tempfile
+from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional, TypeVar, Protocol
+from typing import List, Optional, TypeVar, Generic
 
 from gobexec.goblint.result import RaceSummary
 from gobexec.model.base import Result
@@ -15,7 +16,8 @@ CWD_TOOL_KEY = "goblint-cwd"
 R = TypeVar('R', bound=Result)
 
 
-class ResultExtractor(Protocol[R]):
+class ResultExtractor(ABC, Generic[R]):
+    @abstractmethod
     async def extract(self, ec: ExecutionContext, stdout: bytes) -> R:
         ...
 
@@ -52,7 +54,7 @@ class GoblintTool(Tool[Single, R]):
     #     print(p.stderr)
     #     return RaceExtract().extract(p.stdout)
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> R: # TODO: why incompatible
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> R:
         with tempfile.TemporaryDirectory() as tmp:
             args = [self.program] + \
                    ["--set", "goblint-dir", tmp] + \
