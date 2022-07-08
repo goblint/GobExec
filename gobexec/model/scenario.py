@@ -24,30 +24,26 @@ class MatrixExecutionContext(ExecutionContext):
         self.cache = {}
         self.progress = progress
 
-    def job(self, tool: Tool[Single, R], benchmark: Single):
-        # workaround to force coroutine to copy arguments
-        async def job():
-            self.progress.total += 1
-            # async with sem.get():
-            # self.progress.active += 1
-            # print(f"running {tool}")
-            out = await tool.run_async(self, benchmark)
-            # print(out)
-            self.progress.done += 1
-            # self.progress.active -= 1
-            return SingleToolResult(
-                benchmark=benchmark,
-                tool=tool,
-                result=out
-            )
-
-        return job
+    async def job(self, tool: Tool[Single, R], benchmark: Single):
+        self.progress.total += 1
+        # async with sem.get():
+        # self.progress.active += 1
+        # print(f"running {tool}")
+        out = await tool.run_async(self, benchmark)
+        # print(out)
+        self.progress.done += 1
+        # self.progress.active -= 1
+        return SingleToolResult(
+            benchmark=benchmark,
+            tool=tool,
+            result=out
+        )
 
     def get_tool_future(self, tool: Tool[Any, R]) -> Task[SingleToolResult]:
         # print(1, tool)
         if id(tool) not in self.cache: # hidden tool
             # print(1.5, tool)
-            self.cache[id(tool)] = asyncio.create_task(self.job(tool, self.benchmark_results.benchmark)())
+            self.cache[id(tool)] = asyncio.create_task(self.job(tool, self.benchmark_results.benchmark))
         # print(2, tool, self.cache[id(tool)])
         return self.cache[id(tool)]
 
