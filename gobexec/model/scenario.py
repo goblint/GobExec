@@ -25,19 +25,13 @@ class MatrixExecutionContext(ExecutionContext):
         self.progress = progress
 
     async def job(self, tool: Tool[Single, R], benchmark: Single):
-        self.progress.total += 1
-        # async with sem.get():
-        # self.progress.active += 1
-        # print(f"running {tool}")
-        out = await tool.run_async(self, benchmark)
-        # print(out)
-        self.progress.done += 1
-        # self.progress.active -= 1
-        return SingleToolResult(
-            benchmark=benchmark,
-            tool=tool,
-            result=out
-        )
+        with self.progress:
+            out = await tool.run_async(self, benchmark)
+            return SingleToolResult(
+                benchmark=benchmark,
+                tool=tool,
+                result=out
+            )
 
     def get_tool_future(self, tool: Tool[Any, R]) -> Task[SingleToolResult]:
         # print(1, tool)
