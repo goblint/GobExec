@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import TypeVar, Any, TYPE_CHECKING
 
 from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
+from gobexec.executor import Progress
 from gobexec.model.base import Result
 
 if TYPE_CHECKING:
@@ -32,10 +33,12 @@ class ExecutionContext:
 class RootExecutionContext:
     cpu_sem: asyncio.BoundedSemaphore
     rusage_child_watcher: RusageThreadedChildWatcher
+    progress: Progress
 
     def __init__(self, cpu_sem: asyncio.BoundedSemaphore, rusage_child_watcher) -> None:
         self.cpu_sem = cpu_sem
         self.rusage_child_watcher = rusage_child_watcher
+        self.progress = Progress(0, 0, cpu_sem)
 
     async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:
         async with self.cpu_sem:

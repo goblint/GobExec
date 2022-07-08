@@ -17,20 +17,18 @@ class MatrixExecutionContext(ExecutionContext):
     parent: RootExecutionContext
     benchmark_results: SingleToolsResult
     cache: Dict[int, Task[SingleToolResult]]
-    progress: Progress
 
-    def __init__(self, parent: RootExecutionContext, benchmark_results: SingleToolsResult, progress: Progress) -> None:
+    def __init__(self, parent: RootExecutionContext, benchmark_results: SingleToolsResult) -> None:
         super().__init__()
         self.parent = parent
         self.benchmark_results = benchmark_results
         self.cache = {}
-        self.progress = progress
 
     async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:
         return await self.parent.subprocess_exec(*args, **kwargs)
 
     async def job(self, tool: Tool[Single, R], benchmark: Single):
-        with self.progress:
+        with self.parent.progress:
             out = await tool.run_async(self, benchmark)
             return SingleToolResult(
                 benchmark=benchmark,
@@ -56,13 +54,13 @@ class Matrix(Generic[R]):
     groups: List[Group]
     tools: List[Tool[Single, R]]
 
-    async def execute(self, ec: RootExecutionContext, progress, render) -> MatrixResult[R]:
+    async def execute(self, ec: RootExecutionContext, render) -> MatrixResult[R]:
         matrix_result = MatrixResult(self.tools, [])
         for group in self.groups:
             group_result = GroupToolsResult(group, [])
             for benchmark in group.benchmarks:
                 benchmark_results = SingleToolsResult(benchmark, self.tools, [])
-                bec = MatrixExecutionContext(ec, benchmark_results, progress)
+                bec = MatrixExecutionContext(ec, benchmark_results)
                 for tool in self.tools:
                     task = bec.get_tool_future(tool)
                     task.add_done_callback(lambda _: render())

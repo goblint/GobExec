@@ -46,8 +46,7 @@ async def main():
 
     cpu_sem = asyncio.BoundedSemaphore(14)
     ec = RootExecutionContext(cpu_sem, rusage_child_watcher)
-    progress = Progress(0, 0, cpu_sem)
-    result = await matrix.execute(ec, progress, lambda: renderer.render(result, progress)) # tying the knot!
+    result = await matrix.execute(ec, lambda: renderer.render(result, ec.progress)) # tying the knot!
     await result.join()
     renderer.render(result)
 
