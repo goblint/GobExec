@@ -6,10 +6,11 @@ from gobexec.executor import Progress
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.bench.tools import DuetTool
 from gobexec.goblint.extractor import AssertSummaryExtractor
-from gobexec.goblint.result import Rusage
+from gobexec.goblint.result import Rusage, RaceSummary
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model import tool
 from gobexec.model.context import RootExecutionContext
+from gobexec.model.tool import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
 assert_counter = tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"))
@@ -20,11 +21,13 @@ def index_tool_factory(name, args):
         program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
         args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
         # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
-        cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
-        result=AssertSummaryExtractor(assert_counter)
-        # result=Rusage
+        cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
     )
-    return goblint
+    return ExtractTool(
+        goblint,
+        AssertSummaryExtractor(assert_counter)
+        # RaceSummary
+    )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
     args=["-coarsen", "-inline", "-domain", "oct"],

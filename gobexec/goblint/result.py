@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from gobexec.model.base import Result
-from gobexec.model.context import ExecutionContext
+from gobexec.model.context import ExecutionContext, CompletedSubprocess
 
 
 @dataclass(init=False)
@@ -27,8 +27,8 @@ class RaceSummary(Result):
         return env.get_template("racesummary.jinja")
 
     @staticmethod
-    async def extract(ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> 'RaceSummary':
-        stdout = stdout.decode("utf-8")
+    async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'RaceSummary':
+        stdout = cp.stdout.decode("utf-8")
         safe = int(re.search(r"safe:\s+(\d+)", stdout).group(1))
         vulnerable = int(re.search(r"vulnerable:\s+(\d+)", stdout).group(1))
         unsafe = int(re.search(r"unsafe:\s+(\d+)", stdout).group(1))
@@ -81,5 +81,5 @@ class Rusage(Result):
         return env.from_string("{{ this.rusage.ru_utime }}")
 
     @staticmethod
-    async def extract(ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> 'Rusage':
-        return Rusage(rusage)
+    async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'Rusage':
+        return Rusage(cp.rusage)

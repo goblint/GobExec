@@ -1,48 +1,32 @@
 import asyncio
-import resource
 import tempfile
-from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Optional, TypeVar, Generic
+from typing import List, Optional
 
-from gobexec.goblint.result import RaceSummary
-from gobexec.model import tool
-from gobexec.model.base import Result
 from gobexec.model.benchmark import Single
-from gobexec.model.context import ExecutionContext
+from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.tool import Tool
 
 ARGS_TOOL_KEY = "goblint-args"
 CWD_TOOL_KEY = "goblint-cwd"
 
-R = TypeVar('R', bound=Result)
 
-
-class ResultExtractor(ABC, Generic[R]):
-    @abstractmethod
-    async def extract(self, ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> R:
-        ...
-
-
-class GoblintTool(Tool[Single, R]):
+class GoblintTool(Tool[Single, CompletedSubprocess]):
     name: str
     program: str
     args: List[str]
     cwd: Optional[Path]
-    result: ResultExtractor[R]
 
     def __init__(self,
                  name: str = "Goblint",
                  program: str = "goblint",
                  args: List[str] = None,
-                 cwd: Optional[Path] = None,
-                 result: ResultExtractor[R] = RaceSummary
+                 cwd: Optional[Path] = None
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
         self.cwd = cwd
-        self.result = result
 
     # def run(self, benchmark: Single) -> str:
     #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
@@ -56,7 +40,7 @@ class GoblintTool(Tool[Single, R]):
     #     print(p.stderr)
     #     return RaceExtract().extract(p.stdout)
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> R:
+    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> CompletedSubprocess:
         with tempfile.TemporaryDirectory() as tmp:
             args = [self.program] + \
                    ["--set", "goblint-dir", tmp] + \
@@ -72,4 +56,4 @@ class GoblintTool(Tool[Single, R]):
                 stderr=asyncio.subprocess.PIPE,
                 cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
             )
-            return await self.result.extract(ec, cp.stdout, cp.rusage)
+            return cp

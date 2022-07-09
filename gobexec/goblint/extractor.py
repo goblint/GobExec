@@ -4,9 +4,8 @@ from typing import Any, Optional
 
 from gobexec.goblint.bench.tools import AssertCount
 from gobexec.goblint.result import AssertSummary
-from gobexec.goblint.tool import ResultExtractor
-from gobexec.model.context import ExecutionContext
-from gobexec.model.tool import Tool
+from gobexec.model.context import ExecutionContext, CompletedSubprocess
+from gobexec.model.tool import Tool, ResultExtractor
 
 
 class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
@@ -15,8 +14,8 @@ class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
     def __init__(self, assert_counter: Optional[Tool[Any, AssertCount]] = None) -> None:
         self.assert_counter = assert_counter
 
-    async def extract(self, ec: ExecutionContext, stdout: bytes, rusage: resource.struct_rusage) -> AssertSummary:
-        stdout = stdout.decode("utf-8")
+    async def extract(self, ec: ExecutionContext, cp: CompletedSubprocess) -> AssertSummary:
+        stdout = cp.stdout.decode("utf-8")
         success = len(re.findall(r"\[Success]\[Assert]", stdout))
         warning = len(re.findall(r"\[Warning]\[Assert]", stdout))
         error = len(re.findall(r"\[Error]\[Assert]", stdout))
