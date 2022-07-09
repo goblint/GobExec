@@ -71,3 +71,14 @@ class TimeResult(Result):
     @staticmethod
     async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'TimeResult':
         return TimeResult(cp.rusage.ru_utime + cp.rusage.ru_stime)
+
+
+@dataclass(init=False)
+class MultiResult(Result, Generic[R]):
+    results: List[R]
+
+    def __init__(self, results) -> None:
+        self.results = results
+
+    def template(self, env: Environment) -> Template:
+        return env.get_template("multi.jinja")

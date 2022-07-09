@@ -5,7 +5,8 @@ from typing import Any, Optional
 from gobexec.goblint.bench.tools import AssertCount
 from gobexec.goblint.result import AssertSummary
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
-from gobexec.model.tool import Tool, ResultExtractor
+from gobexec.model.tool import Tool
+from gobexec.model.tools import ResultExtractor
 
 
 class AssertSummaryExtractor(ResultExtractor[AssertSummary]):

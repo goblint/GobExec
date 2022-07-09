@@ -11,7 +11,7 @@ from gobexec.goblint.tool import GoblintTool
 from gobexec.model import tool
 from gobexec.model.context import RootExecutionContext
 from gobexec.model.result import TimeResult
-from gobexec.model.tool import ExtractTool
+from gobexec.model.tools import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
 assert_counter = tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"))
@@ -26,9 +26,10 @@ def index_tool_factory(name, args):
     )
     return ExtractTool(
         goblint,
-        # AssertSummaryExtractor(assert_counter)
+        TimeResult,
+        # AssertSummaryExtractor(assert_counter),
+        # AssertSummaryExtractor(),
         # RaceSummary
-        TimeResult
     )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
