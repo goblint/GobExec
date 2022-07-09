@@ -1,20 +1,20 @@
 import re
 import shlex
 from pathlib import Path
-from typing import List, TypeVar
+from typing import List, TypeVar, Callable
 
 from gobexec.goblint.tool import GoblintTool, ARGS_TOOL_KEY, CWD_TOOL_KEY
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Group, Single
 from gobexec.model.scenario import Matrix
-
+from gobexec.model.tool import Tool
 
 R = TypeVar('R', bound=Result)
 
 
-def load(path: Path, base_tool: GoblintTool[R]) -> Matrix[R]:
+def load(path: Path, tool_factory: Callable[[str, List[str]], Tool[Single, R]]) -> Matrix[R]:
     with path.open() as file:
-        tools: List[GoblintTool[R]] = []
+        tools: List[Tool[Single, R]] = []
         groups: List[Group] = []
 
         while line := file.readline():
@@ -28,13 +28,7 @@ def load(path: Path, base_tool: GoblintTool[R]) -> Matrix[R]:
                 if name == "Group":
                     groups.append(Group(name=m.group(2), benchmarks=[]))
                 else:
-                    tools.append(GoblintTool(
-                        name=name,
-                        args=base_tool.args + shlex.split(m.group(2)),
-                        program=base_tool.program,
-                        cwd=base_tool.cwd,
-                        result=base_tool.result
-                    ))
+                    tools.append(tool_factory(name, shlex.split(m.group(2))))
             else:
                 name = line
                 info = file.readline().strip()

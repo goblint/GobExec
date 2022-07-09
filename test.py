@@ -13,21 +13,25 @@ from gobexec.model.context import RootExecutionContext
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
 assert_counter = tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"))
-goblint = GoblintTool(
-    program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
-    args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"],
-    # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
-    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
-    result=AssertSummaryExtractor(assert_counter)
-    # result=Rusage
-)
+
+def index_tool_factory(name, args):
+    goblint = GoblintTool(
+        name=name,
+        program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
+        args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
+        # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
+        cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
+        result=AssertSummaryExtractor(assert_counter)
+        # result=Rusage
+    )
+    return goblint
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
     args=["-coarsen", "-inline", "-domain", "oct"],
     cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
     assert_counter=assert_counter
 )
-matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"), goblint)
+matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"), index_tool_factory)
 # matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"), goblint)
 matrix.tools.append(duet)
 # matrix.tools.append(assert_counter)
