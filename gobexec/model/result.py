@@ -3,8 +3,11 @@ from asyncio import Task
 from dataclasses import dataclass
 from typing import List, TypeVar, Generic
 
+from jinja2 import Environment, Template
+
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Single, Group
+from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.tool import Tool
 
 R = TypeVar('R', bound=Result)
@@ -53,3 +56,18 @@ class MatrixResult(Result, Generic[R]):
 
     def template(self, env):
         return env.get_template("matrix.jinja")
+
+
+@dataclass(init=False)
+class TimeResult(Result):
+    time: float
+
+    def __init__(self, time: float) -> None:
+        self.time = time
+
+    def template(self, env: Environment) -> Template:
+        return env.from_string("{{ \"%.2f\"|format(this.time) }}s")
+
+    @staticmethod
+    async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'TimeResult':
+        return TimeResult(cp.rusage.ru_utime + cp.rusage.ru_stime)

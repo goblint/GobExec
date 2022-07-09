@@ -78,7 +78,7 @@ class Rusage(Result):
         self.rusage = rusage
 
     def template(self, env):
-        return env.from_string("{{ this.rusage.ru_utime }}")
+        return env.from_string("{{ this.rusage }}")
 
     @staticmethod
     async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'Rusage':

@@ -10,6 +10,7 @@ from gobexec.goblint.result import Rusage, RaceSummary
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model import tool
 from gobexec.model.context import RootExecutionContext
+from gobexec.model.result import TimeResult
 from gobexec.model.tool import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
@@ -25,8 +26,9 @@ def index_tool_factory(name, args):
     )
     return ExtractTool(
         goblint,
-        AssertSummaryExtractor(assert_counter)
+        # AssertSummaryExtractor(assert_counter)
         # RaceSummary
+        TimeResult
     )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
