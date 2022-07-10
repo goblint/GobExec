@@ -1,12 +1,9 @@
 import asyncio
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Any
 
-from gobexec.goblint.tool import CWD_TOOL_KEY
-from gobexec.goblint.result import AssertSummary
-from gobexec.model import tool
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext
 from gobexec.model.result import Result
@@ -25,15 +22,12 @@ class AssertCount(Result):
 
 
 class AssertCounter(Tool[Single, AssertCount]):
-    name = "asserts"
-    cwd: Path
+    name: str
 
     def __init__(self,
-                 cwd: Path,
                  name: str = "asserts"
                  ) -> None:
         self.name = name
-        self.cwd = cwd
 
     async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertCount:
         cp = await ec.subprocess_exec(
@@ -41,7 +35,6 @@ class AssertCounter(Tool[Single, AssertCount]):
             # capture_output=True,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
         )
         return AssertCount(len(re.findall(r"__assert_fail", cp.stdout.decode("utf-8"))) - 1)
 
@@ -81,20 +74,17 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
     name: str
     program: str
     args: List[str]
-    cwd: Optional[Path]
     assert_counter: Optional[Tool[Any, AssertCount]]
 
     def __init__(self,
                  name: str = "Duet",
                  program: str = "duet.exe",
                  args: List[str] = None,
-                 cwd: Optional[Path] = None,
                  assert_counter: Optional[Tool[Any, AssertCount]] = None
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
-        self.cwd = cwd
         self.assert_counter = assert_counter
 
     async def run_async(self, ec: ExecutionContext, benchmark: Single) -> DuetAssertSummary:
@@ -108,7 +98,6 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
             # capture_output=True,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
-            cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
         )
         if cp.process.returncode == 0:
             stdout = cp.stdout.decode("utf-8")

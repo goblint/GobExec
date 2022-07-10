@@ -3,7 +3,7 @@ import shlex
 from pathlib import Path
 from typing import List, TypeVar, Protocol
 
-from gobexec.goblint.tool import ARGS_TOOL_KEY, CWD_TOOL_KEY
+from gobexec.goblint.tool import ARGS_TOOL_KEY
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Group, Single
 from gobexec.model.scenario import Matrix
@@ -17,8 +17,10 @@ class ToolFactory(Protocol):
         ...
 
 
-def load(path: Path, tool_factory: ToolFactory) -> Matrix[R]:
-    with path.open() as file:
+def load(index_path: Path, tool_factory: ToolFactory) -> Matrix[R]:
+    bench_path = index_path.parent.parent
+
+    with index_path.open() as file:
         tools: List[Tool[Single, R]] = []
         groups: List[Group] = []
 
@@ -44,10 +46,9 @@ def load(path: Path, tool_factory: ToolFactory) -> Matrix[R]:
                 groups[-1].benchmarks.append(Single(
                     name=name,
                     description=info,
-                    files=[bpath.relative_to(bpath.parent)],
+                    files=[bench_path / bpath],
                     tool_data={
-                        ARGS_TOOL_KEY: shlex.split(param) if param else [],
-                        CWD_TOOL_KEY: bpath.parent
+                        ARGS_TOOL_KEY: shlex.split(param) if param else []
                     }
                 ))
 

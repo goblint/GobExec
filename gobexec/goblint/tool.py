@@ -1,32 +1,27 @@
 import asyncio
 import tempfile
-from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.tool import Tool
 
 ARGS_TOOL_KEY = "goblint-args"
-CWD_TOOL_KEY = "goblint-cwd"
 
 
 class GoblintTool(Tool[Single, CompletedSubprocess]):
     name: str
     program: str
     args: List[str]
-    cwd: Optional[Path]
 
     def __init__(self,
                  name: str = "Goblint",
                  program: str = "goblint",
-                 args: List[str] = None,
-                 cwd: Optional[Path] = None
+                 args: List[str] = None
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
-        self.cwd = cwd
 
     # def run(self, benchmark: Single) -> str:
     #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
@@ -53,7 +48,6 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                 *args[1:],
                 # capture_output=True,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-                cwd=self.cwd / benchmark.tool_data.get(CWD_TOOL_KEY, Path())
+                stderr=asyncio.subprocess.PIPE
             )
             return cp

@@ -14,7 +14,7 @@ from gobexec.model.result import TimeResult
 from gobexec.model.tools import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
-assert_counter = tools.AssertCounter(cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"))
+assert_counter = tools.AssertCounter()
 
 def index_tool_factory(name, args):
     goblint = GoblintTool(
@@ -22,7 +22,6 @@ def index_tool_factory(name, args):
         program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
         args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
         # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
-        cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
     )
     return ExtractTool(
         goblint,
@@ -34,7 +33,6 @@ def index_tool_factory(name, args):
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",
     args=["-coarsen", "-inline", "-domain", "oct"],
-    cwd=Path("/home/simmo/dev/goblint/sv-comp/goblint-bench"),
     assert_counter=assert_counter
 )
 matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"), index_tool_factory)
