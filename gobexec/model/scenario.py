@@ -51,11 +51,12 @@ class MatrixExecutionContext(ExecutionContext):
 
 @dataclass
 class Matrix(Generic[R]):
+    name: str
     groups: List[Group]
     tools: List[Tool[Single, R]]
 
     async def execute(self, ec: RootExecutionContext, render) -> MatrixResult[R]:
-        matrix_result = MatrixResult(self.tools, [])
+        matrix_result = MatrixResult(self, [])
         for group in self.groups:
             group_result = GroupToolsResult(group, [])
             for benchmark in group.benchmarks:

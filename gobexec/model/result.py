@@ -1,4 +1,5 @@
 import asyncio
+import typing
 from asyncio import Task
 from dataclasses import dataclass
 from typing import List, TypeVar, Generic
@@ -8,6 +9,8 @@ from jinja2 import Environment, Template
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Single, Group
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
+if typing.TYPE_CHECKING:
+    from gobexec.model.scenario import Matrix
 from gobexec.model.tool import Tool
 
 R = TypeVar('R', bound=Result)
@@ -41,15 +44,19 @@ class GroupToolsResult(Generic[R]):
 
 @dataclass(init=False)
 class MatrixResult(Result, Generic[R]):
-    tools: List[Tool[Single, R]]
+    matrix: 'Matrix[R]'
     groups: List[GroupToolsResult[R]]
 
     def __init__(self,
-                 tools: List[Tool[Single, R]],
+                 matrix: 'Matrix[R]',
                  groups: List[GroupToolsResult[R]]
                  ) -> None:
-        self.tools = tools
+        self.matrix = matrix
         self.groups = groups
+
+    @property
+    def tools(self):
+        return self.matrix.tools
 
     async def join(self) -> None:
         await asyncio.wait([group.join() for group in self.groups])

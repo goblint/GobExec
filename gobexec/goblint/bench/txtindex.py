@@ -52,8 +52,8 @@ def load(index_path: Path, tool_factory: ToolFactory) -> Matrix[R]:
                     }
                 ))
 
-        # TODO: name=path.stem
         return Matrix(
+            name=index_path.stem,
             tools=tools,
             groups=groups
         )
