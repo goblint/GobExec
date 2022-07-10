@@ -1,9 +1,9 @@
 import re
 import shlex
 from pathlib import Path
-from typing import List, TypeVar, Callable
+from typing import List, TypeVar, Protocol
 
-from gobexec.goblint.tool import GoblintTool, ARGS_TOOL_KEY, CWD_TOOL_KEY
+from gobexec.goblint.tool import ARGS_TOOL_KEY, CWD_TOOL_KEY
 from gobexec.model.base import Result
 from gobexec.model.benchmark import Group, Single
 from gobexec.model.scenario import Matrix
@@ -12,7 +12,12 @@ from gobexec.model.tool import Tool
 R = TypeVar('R', bound=Result)
 
 
-def load(path: Path, tool_factory: Callable[[str, List[str]], Tool[Single, R]]) -> Matrix[R]:
+class ToolFactory(Protocol):
+    def __call__(self, name: str, args: List[str]) -> Tool[Single, R]:
+        ...
+
+
+def load(path: Path, tool_factory: ToolFactory) -> Matrix[R]:
     with path.open() as file:
         tools: List[Tool[Single, R]] = []
         groups: List[Group] = []
@@ -28,7 +33,7 @@ def load(path: Path, tool_factory: Callable[[str, List[str]], Tool[Single, R]]) 
                 if name == "Group":
                     groups.append(Group(name=m.group(2), benchmarks=[]))
                 else:
-                    tools.append(tool_factory(name, shlex.split(m.group(2))))
+                    tools.append(tool_factory(name=name, args=shlex.split(m.group(2))))
             else:
                 name = line
                 info = file.readline().strip()
