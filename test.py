@@ -24,12 +24,14 @@ def index_tool_factory(name, args):
         args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
         # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
     )
+    assert_summary_extractor = AssertSummaryExtractor(assert_counter)
     return ExtractTool(
         goblint,
         TimeResult,
-        # AssertSummaryExtractor(assert_counter),
+        assert_summary_extractor,
         # AssertSummaryExtractor(),
         # RaceSummary
+        primary=assert_summary_extractor
     )
 duet = DuetTool(
     program="/home/simmo/Desktop/duet/duet/duet.exe",

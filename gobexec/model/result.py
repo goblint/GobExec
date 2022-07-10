@@ -2,7 +2,7 @@ import asyncio
 import typing
 from asyncio import Task
 from dataclasses import dataclass
-from typing import List, TypeVar, Generic
+from typing import List, TypeVar, Generic, Optional
 
 from jinja2 import Environment, Template
 
@@ -83,9 +83,18 @@ class TimeResult(Result):
 @dataclass(init=False)
 class MultiResult(Result, Generic[R]):
     results: List[R]
+    primary: Optional[R]
 
-    def __init__(self, results) -> None:
+    def __init__(self, results, primary: Optional[R] = None) -> None:
         self.results = results
+        self.primary = primary
 
     def template(self, env: Environment) -> Template:
         return env.get_template("multi.jinja")
+
+    @property
+    def kind(self):
+        if self.primary:
+            return self.primary.kind
+        else:
+            return ""
