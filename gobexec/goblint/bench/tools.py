@@ -92,13 +92,16 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
                self.args + \
                [str(file) for file in benchmark.files]
         # print(args)
-        cp = await ec.subprocess_exec(
-            args[0],
-            *args[1:],
-            # capture_output=True,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
+        with (ec.get_tool_data_path(self) / "out.txt").open("w+b") as out_file:
+            cp = await ec.subprocess_exec(
+                args[0],
+                *args[1:],
+                # capture_output=True,
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT,
+            )
+            out_file.seek(0)
+            cp.stdout = out_file.read()
         if cp.process.returncode == 0:
             stdout = cp.stdout.decode("utf-8")
             error = int(re.search(r"(\d+) errors total", stdout).group(1))

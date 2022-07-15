@@ -2,6 +2,7 @@ import asyncio
 import resource
 from asyncio.subprocess import Process
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TypeVar, Any, TYPE_CHECKING, Generic
 
 from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
@@ -27,16 +28,21 @@ class ExecutionContext(Generic[B]):
     async def get_tool_result(self, tool: 'Tool[B, R]') -> R:
         ...
 
+    def get_tool_data_path(self, tool: 'Tool[B, R]') -> Path:
+        ...
+
     async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:
         ...
 
 
 class RootExecutionContext:
+    data_path: Path
     cpu_sem: asyncio.BoundedSemaphore
     rusage_child_watcher: RusageThreadedChildWatcher
     progress: Progress
 
-    def __init__(self, cpu_sem: asyncio.BoundedSemaphore, rusage_child_watcher) -> None:
+    def __init__(self, data_path: Path, cpu_sem: asyncio.BoundedSemaphore, rusage_child_watcher) -> None:
+        self.data_path = data_path
         self.cpu_sem = cpu_sem
         self.rusage_child_watcher = rusage_child_watcher
         self.progress = Progress(0, 0, cpu_sem)

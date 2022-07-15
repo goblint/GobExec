@@ -1,6 +1,7 @@
 import asyncio
 from asyncio import Future, Task
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Any, TypeVar, Generic, Dict
 
 from gobexec.executor import Progress
@@ -19,12 +20,14 @@ class MatrixExecutionContext(ExecutionContext[B], Generic[B, R]):
     parent: RootExecutionContext
     benchmark_results: SingleToolsResult[B, R]
     cache: Dict[int, Task[SingleToolResult[B, Result]]]
+    data_path: Path
 
-    def __init__(self, parent: RootExecutionContext, benchmark_results: SingleToolsResult[B, R]) -> None:
+    def __init__(self, parent: RootExecutionContext, benchmark_results: SingleToolsResult[B, R], data_path: Path) -> None:
         super().__init__()
         self.parent = parent
         self.benchmark_results = benchmark_results
         self.cache = {}
+        self.data_path = data_path
 
     async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:
         return await self.parent.subprocess_exec(*args, **kwargs)
@@ -50,6 +53,11 @@ class MatrixExecutionContext(ExecutionContext[B], Generic[B, R]):
         result = await self.get_tool_future(tool)
         return result.result
 
+    def get_tool_data_path(self, tool: 'Tool[B, R]') -> Path:
+        data_path = self.data_path / tool.name
+        data_path.mkdir(parents=True, exist_ok=True)
+        return data_path
+
 
 @dataclass
 class Matrix(Generic[B, R]):
@@ -63,7 +71,9 @@ class Matrix(Generic[B, R]):
             group_result = GroupToolsResult[B, R](group, [])
             for benchmark in group.benchmarks:
                 benchmark_results = SingleToolsResult[B, R](benchmark, self.tools, [])
-                bec = MatrixExecutionContext[B, R](ec, benchmark_results)
+                data_path = ec.data_path / group.name / benchmark.name  # TODO: benchmark supertype with name
+                data_path.mkdir(parents=True, exist_ok=True)
+                bec = MatrixExecutionContext[B, R](ec, benchmark_results, data_path)
                 for tool in self.tools:
                     task = bec.get_tool_future(tool)
                     task.add_done_callback(lambda _: render())

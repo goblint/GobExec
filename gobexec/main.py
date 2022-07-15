@@ -1,4 +1,5 @@
 import asyncio
+from pathlib import Path
 
 from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
 from gobexec.model.context import RootExecutionContext
@@ -11,8 +12,10 @@ def run(matrix, renderer):
         rusage_child_watcher.attach_loop(loop)
         asyncio.set_child_watcher(rusage_child_watcher)
 
+        data_path = Path("out")
+        data_path.mkdir(parents=True, exist_ok=True)
         cpu_sem = asyncio.BoundedSemaphore(14)
-        ec = RootExecutionContext(cpu_sem, rusage_child_watcher)
+        ec = RootExecutionContext(data_path, cpu_sem, rusage_child_watcher)
         result = await matrix.execute(ec, lambda: renderer.render(result, ec.progress))  # tying the knot!
         await result.join()
         renderer.render(result)

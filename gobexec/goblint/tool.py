@@ -36,9 +36,12 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     #     return RaceExtract().extract(p.stdout)
 
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> CompletedSubprocess:
-        with tempfile.TemporaryDirectory() as tmp:
+        data_path = ec.get_tool_data_path(self)
+        goblint_dir = data_path / ".goblint"
+        goblint_dir.mkdir(parents=True, exist_ok=True)
+        with (data_path / "out.txt").open("w+b") as out_file:
             args = [self.program] + \
-                   ["--set", "goblint-dir", tmp] + \
+                   ["--set", "goblint-dir", goblint_dir.absolute()] + \
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
                    [str(file) for file in benchmark.files]
@@ -47,7 +50,9 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                 args[0],
                 *args[1:],
                 # capture_output=True,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT
             )
+            out_file.seek(0)
+            cp.stdout = out_file.read()  # currently for extractors
             return cp
