@@ -1,6 +1,6 @@
 import asyncio
 from abc import ABC, abstractmethod
-from typing import Generic, List, Optional
+from typing import Generic, List, Optional, Any
 
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.result import MultiResult
@@ -9,7 +9,7 @@ from gobexec.model.tool import R, Tool, B
 
 class ResultExtractor(ABC, Generic[R]):
     @abstractmethod
-    async def extract(self, ec: ExecutionContext, cp: CompletedSubprocess) -> R:
+    async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> R:
         ...
 
 
@@ -31,7 +31,7 @@ class ExtractTool(Tool[B, R]):
     def name(self):
         return self.delegate.name
 
-    async def run_async(self, ec: ExecutionContext, benchmark: B) -> R:
+    async def run_async(self, ec: ExecutionContext[B], benchmark: B) -> R:
         cp = await self.delegate.run_async(ec, benchmark)
         results = await asyncio.gather(*[extractor.extract(ec, cp) for extractor in self.extractors])
         if self.primary:

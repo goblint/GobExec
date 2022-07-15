@@ -12,7 +12,7 @@ class Tool(ABC, Generic[B, R]):
     name: str # TODO: not checked by abc
 
     @abstractmethod
-    async def run_async(self, ec: ExecutionContext, benchmark: B) -> R:
+    async def run_async(self, ec: ExecutionContext[B], benchmark: B) -> R:
         ...
 
 

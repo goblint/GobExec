@@ -2,7 +2,7 @@ import asyncio
 import resource
 from asyncio.subprocess import Process
 from dataclasses import dataclass
-from typing import TypeVar, Any, TYPE_CHECKING
+from typing import TypeVar, Any, TYPE_CHECKING, Generic
 
 from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
 from gobexec.executor import Progress
@@ -11,6 +11,7 @@ from gobexec.model.base import Result
 if TYPE_CHECKING:
     from gobexec.model.tool import Tool
 
+B = TypeVar('B')
 R = TypeVar('R', bound=Result)
 
 
@@ -22,8 +23,8 @@ class CompletedSubprocess:
     rusage: resource.struct_rusage
 
 
-class ExecutionContext:
-    async def get_tool_result(self, tool: 'Tool[Any, R]') -> R:
+class ExecutionContext(Generic[B]):
+    async def get_tool_result(self, tool: 'Tool[B, R]') -> R:
         ...
 
     async def subprocess_exec(self, *args, **kwargs) -> CompletedSubprocess:

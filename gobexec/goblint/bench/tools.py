@@ -29,7 +29,7 @@ class AssertCounter(Tool[Single, AssertCount]):
                  ) -> None:
         self.name = name
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> AssertCount:
+    async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> AssertCount:
         cp = await ec.subprocess_exec(
             "gcc", "-E", *[str(file) for file in benchmark.files],
             # capture_output=True,
@@ -87,7 +87,7 @@ class DuetTool(Tool[Single, DuetAssertSummary]):
         self.args = args if args else []
         self.assert_counter = assert_counter
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> DuetAssertSummary:
+    async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> DuetAssertSummary:
         args = [self.program] + \
                self.args + \
                [str(file) for file in benchmark.files]

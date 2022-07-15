@@ -15,7 +15,7 @@ class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
     def __init__(self, assert_counter: Optional[Tool[Any, AssertCount]] = None) -> None:
         self.assert_counter = assert_counter
 
-    async def extract(self, ec: ExecutionContext, cp: CompletedSubprocess) -> AssertSummary:
+    async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> AssertSummary:
         stdout = cp.stdout.decode("utf-8")
         success = len(re.findall(r"\[Success]\[Assert]", stdout))
         warning = len(re.findall(r"\[Warning]\[Assert]", stdout))

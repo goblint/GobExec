@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, TypeVar, Generic
+
+B = TypeVar('B')
 
 
 @dataclass
@@ -12,6 +14,6 @@ class Single:
 
 
 @dataclass
-class Group:
+class Group(Generic[B]):
     name: str
-    benchmarks: List[Single]
+    benchmarks: List[B]

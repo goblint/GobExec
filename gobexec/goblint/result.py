@@ -1,7 +1,7 @@
 import re
 import resource
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any
 
 from gobexec.model.base import Result
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
@@ -27,7 +27,7 @@ class RaceSummary(Result):
         return env.get_template("racesummary.jinja")
 
     @staticmethod
-    async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'RaceSummary':
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'RaceSummary':
         stdout = cp.stdout.decode("utf-8")
         safe = int(re.search(r"safe:\s+(\d+)", stdout).group(1))
         vulnerable = int(re.search(r"vulnerable:\s+(\d+)", stdout).group(1))
@@ -81,5 +81,5 @@ class Rusage(Result):
         return env.from_string("{{ this.rusage }}")
 
     @staticmethod
-    async def extract(ec: ExecutionContext, cp: CompletedSubprocess) -> 'Rusage':
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'Rusage':
         return Rusage(cp.rusage)

@@ -35,7 +35,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     #     print(p.stderr)
     #     return RaceExtract().extract(p.stdout)
 
-    async def run_async(self, ec: ExecutionContext, benchmark: Single) -> CompletedSubprocess:
+    async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> CompletedSubprocess:
         with tempfile.TemporaryDirectory() as tmp:
             args = [self.program] + \
                    ["--set", "goblint-dir", tmp] + \

@@ -17,12 +17,12 @@ class ToolFactory(Protocol):
         ...
 
 
-def load(index_path: Path, tool_factory: ToolFactory) -> Matrix[R]:
+def load(index_path: Path, tool_factory: ToolFactory) -> Matrix[Single, R]:
     bench_path = index_path.parent.parent
 
     with index_path.open() as file:
         tools: List[Tool[Single, R]] = []
-        groups: List[Group] = []
+        groups: List[Group[Single]] = []
 
         while line := file.readline():
             line = line.strip()
