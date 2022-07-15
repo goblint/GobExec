@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Any
 
+from gobexec.model.base import ResultKind
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext
 from gobexec.model.result import Result
@@ -59,15 +60,14 @@ class DuetAssertSummary(Result):
 
     @property
     def kind(self):
-        # TODO: generalize to all results
         if not self.valid:
-            return "" # TODO: missing class
+            return ResultKind.ERROR
         if self.success == 0:
-            return "danger"
+            return ResultKind.FAILURE
         elif self.error == 0:
-            return "success"
+            return ResultKind.SUCCESS
         else:
-            return "warning"
+            return ResultKind.WARNING
 
 
 class DuetTool(Tool[Single, DuetAssertSummary]):

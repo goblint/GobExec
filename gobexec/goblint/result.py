@@ -3,7 +3,7 @@ import resource
 from dataclasses import dataclass
 from typing import Optional, Any
 
-from gobexec.model.base import Result
+from gobexec.model.base import Result, ResultKind
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 
 
@@ -60,13 +60,12 @@ class AssertSummary(Result):
     def kind(self):
         bad = self.warning + self.error
         good = self.success + (self.unreachable or 0)
-        # TODO: generalize to all results
         if good == 0:
-            return "danger"
+            return ResultKind.FAILURE
         elif bad == 0:
-            return "success"
+            return ResultKind.SUCCESS
         else:
-            return "warning"
+            return ResultKind.WARNING
 
 
 @dataclass(init=False)

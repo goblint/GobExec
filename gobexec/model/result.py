@@ -6,7 +6,7 @@ from typing import List, TypeVar, Generic, Optional, Any
 
 from jinja2 import Environment, Template
 
-from gobexec.model.base import Result
+from gobexec.model.base import Result, ResultKind
 from gobexec.model.benchmark import Single, Group
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 if typing.TYPE_CHECKING:
@@ -98,4 +98,4 @@ class MultiResult(Result, Generic[R]):
         if self.primary:
             return self.primary.kind
         else:
-            return ""
+            return ResultKind.DEFAULT

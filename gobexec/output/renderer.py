@@ -4,6 +4,8 @@ from typing import List
 
 from jinja2 import Environment, Template, PackageLoader, select_autoescape, ChoiceLoader, pass_environment
 
+from gobexec.model.base import ResultKind
+
 
 class Renderer:
     env: Environment
@@ -23,6 +25,7 @@ class Renderer:
             t = x.template(env)
             return t.render(this=x)
         self.env.filters["template"] = template
+        self.env.globals["ResultKind"] = ResultKind
 
         self.index_template = self.env.get_template(f"index.jinja")
         self.progress_template = self.env.get_template(f"progress.jinja")

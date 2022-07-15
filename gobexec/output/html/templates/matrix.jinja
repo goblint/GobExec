@@ -21,8 +21,14 @@
             <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
-            {% if benchmark_result.result().result.kind %}
-            <td class="text-nowrap bg-{{ benchmark_result.result().result.kind }} bg-opacity-25">
+            {% if benchmark_result.result().result.kind == ResultKind.SUCCESS %}
+            <td class="text-nowrap bg-success bg-opacity-25">
+            {% elif benchmark_result.result().result.kind == ResultKind.WARNING %}
+            <td class="text-nowrap bg-warning bg-opacity-25">
+            {% elif benchmark_result.result().result.kind == ResultKind.FAILURE %}
+            <td class="text-nowrap bg-danger bg-opacity-25">
+            {% elif benchmark_result.result().result.kind == ResultKind.ERROR %}
+            <td class="text-nowrap bg-secondary bg-opacity-25">
             {% else %}
             <td class="text-nowrap">
             {% endif %}
