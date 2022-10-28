@@ -2,16 +2,26 @@ import os
 import resource
 from asyncio import ThreadedChildWatcher
 from asyncio.log import logger
-from asyncio.unix_events import _compute_returncode
 
 # based on https://www.enricozini.org/blog/2019/debian/getting-rusage-of-child-processes-on-python-s-asyncio/
 from typing import Dict
 
 
+# copied from unix_events.ThreadedChildWatcher on Python 3.10.6
+def waitstatus_to_exitcode(status):
+    try:
+        return os.waitstatus_to_exitcode(status)
+    except ValueError:
+        # The child exited, but we don't understand its status.
+        # This shouldn't happen, but if it does, let's just
+        # return that status; perhaps that helps debug it.
+        return status
+
+
 class RusageThreadedChildWatcher(ThreadedChildWatcher):
     rusages: Dict[int, resource.struct_rusage] = {}
 
-    # copied from unix_events.ThreadedChildWatcher on Python 3.9.7
+    # copied from unix_events.ThreadedChildWatcher on Python 3.10.6
     def _do_waitpid(self, loop, expected_pid, callback, args):
         assert expected_pid > 0
 
@@ -27,7 +37,7 @@ class RusageThreadedChildWatcher(ThreadedChildWatcher):
                 "Unknown child process pid %d, will report returncode 255",
                 pid)
         else:
-            returncode = _compute_returncode(status)
+            returncode = waitstatus_to_exitcode(status)
             if loop.get_debug():
                 logger.debug('process %s exited with returncode %s',
                              expected_pid, returncode)
