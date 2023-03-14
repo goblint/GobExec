@@ -20,8 +20,8 @@ assert_counter = tools.AssertCounter()
 def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
-        program="/home/simmo/dev/goblint/sv-comp/goblint/goblint",
-        args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
+        program="../analyzer/goblint",
+        args=["--conf", "../analyzer/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
         # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
     )
     assert_summary_extractor = AssertSummaryExtractor(assert_counter)
@@ -29,18 +29,12 @@ def index_tool_factory(name, args):
         goblint,
         TimeResult,
         assert_summary_extractor,
-        # AssertSummaryExtractor(),
+        #AssertSummaryExtractor(),
         # RaceSummary
         primary=assert_summary_extractor
     )
-duet = DuetTool(
-    program="/home/simmo/Desktop/duet/duet/duet.exe",
-    args=["-coarsen", "-inline", "-domain", "oct"],
-    assert_counter=assert_counter
-)
-matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-rel-toy.txt"), index_tool_factory)
+matrix = txtindex.load(Path("../bench/index/traces-rel-toy.txt"), index_tool_factory)
 # matrix = txtindex.load(Path("/home/simmo/dev/goblint/sv-comp/goblint-bench/index/traces-relational-watts.txt"), goblint)
-matrix.tools.append(duet)
 # matrix.tools.append(assert_counter)
 matrix.tools.insert(0, assert_counter)
 
