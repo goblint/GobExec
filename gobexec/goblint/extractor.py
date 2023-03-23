@@ -3,7 +3,7 @@ import resource
 from typing import Any, Optional
 
 from gobexec.goblint.bench.tools import AssertCount
-from gobexec.goblint.result import AssertSummary
+from gobexec.goblint.result import AssertSummary, LineSummary
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.tool import Tool
 from gobexec.model.tools import ResultExtractor
@@ -26,3 +26,15 @@ class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
         else:
             unreachable = None
         return AssertSummary(success, warning, error, unreachable)
+
+
+# class LineSummaryExtractor(ResultExtractor[LineSummary]):
+#     line_counter: ...
+#     def __init__(self):
+#         ...
+#
+#     async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> LineSummary:
+#         stdout = cp.stdout.decode("utf-8")
+#         live = len(re.findall(r"/live:[ ]*([0-9]*)/", stdout))
+#         dead = len(re.findall(r"/dead:[ ]*([0-9]*)/", stdout))
+#         total = live + dead

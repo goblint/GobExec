@@ -82,3 +82,17 @@ class Rusage(Result):
     @staticmethod
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'Rusage':
         return Rusage(cp.rusage)
+
+@dataclass(init=False)
+class LineSummary(Result):
+    live: int
+    dead: int
+    total: int
+
+    def __init__(self, live: int, dead: int, total: int):
+        self.live = live
+        self.dead = dead
+        self.total = total
+
+    def template(self, env):
+        return env.get_template("linesummary.jinja")
