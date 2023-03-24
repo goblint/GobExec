@@ -96,3 +96,11 @@ class LineSummary(Result):
 
     def template(self, env):
         return env.get_template("linesummary.jinja")
+
+    @staticmethod
+    async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'LineSummary':
+        stdout = cp.stdout.decode("utf-8")
+        live = len(re.findall(r"/live:[ ]*([0-9]*)/", stdout))
+        dead = len(re.findall(r"/dead:[ ]*([0-9]*)/", stdout))
+        total = live + dead
+        return LineSummary(live, dead, total)
