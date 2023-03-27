@@ -83,7 +83,7 @@ class Rusage(Result):
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'Rusage':
         return Rusage(cp.rusage)
 
-@dataclass(init=False)
+@dataclass(init=False)#TODO: check correctness
 class LineSummary(Result):
     live: int
     dead: int

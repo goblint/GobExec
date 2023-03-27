@@ -13,15 +13,19 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     name: str
     program: str
     args: List[str]
+    dump: bool
+
 
     def __init__(self,
                  name: str = "Goblint",
                  program: str = "goblint",
-                 args: List[str] = None
+                 args: List[str] = None,
+                 dump: bool = False
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
+        self.dump = dump
 
     # def run(self, benchmark: Single) -> str:
     #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
@@ -56,3 +60,19 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
             return cp
+
+
+class PrivPrecTool([GoblintTool]):#TODO: check correctness
+    program: str
+    args: List[GoblintTool]
+
+
+    def __init__(self,
+                 program: str = "./privPrecCompare",
+                 args: List[GoblintTool] = None) -> None:
+        self.program = program
+        self.args = args if args else []
+
+
+    async def run(self, ec: ExecutionContext[Single]) -> CompletedSubprocess:
+        path = ec.get_tool_data_path(self)

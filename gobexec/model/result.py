@@ -99,3 +99,14 @@ class MultiResult(Result, Generic[R]):
             return self.primary.kind
         else:
             return ResultKind.DEFAULT
+
+@dataclass(init=False)#TODO: check correctness
+class PrivPrecResult(Result):
+    result_path: str
+
+    def __init__(self, result_path: str) -> None:
+        self.result_path = result_path
+
+    def template(self, env: Environment) -> Template:
+        ...#TODO: Create template for privPrecCompare result
+
