@@ -12,6 +12,7 @@ class RaceSummary(Result):
     safe: int
     vulnerable: int
     unsafe: int
+
     # total: int
 
     def __init__(self,
@@ -66,6 +67,7 @@ class AssertSummary(Result):
             return ResultKind.SUCCESS
         else:
             return ResultKind.WARNING
+
 
 
 @dataclass(init=False)

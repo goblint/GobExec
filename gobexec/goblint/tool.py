@@ -4,6 +4,7 @@ from typing import List
 
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
+from gobexec.model.result import PrivPrecResult
 from gobexec.model.tool import Tool
 
 ARGS_TOOL_KEY = "goblint-args"
@@ -14,7 +15,6 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     program: str
     args: List[str]
     dump: bool
-
 
     def __init__(self,
                  name: str = "Goblint",
@@ -62,10 +62,9 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             return cp
 
 
-class PrivPrecTool([GoblintTool]):#TODO: check correctness
+class PrivPrecTool(Tool[Single, PrivPrecResult]):  # TODO: check correctness
     program: str
-    args: List[GoblintTool]
-
+    args: List[GoblintTool.]
 
     def __init__(self,
                  program: str = "./privPrecCompare",
@@ -73,6 +72,6 @@ class PrivPrecTool([GoblintTool]):#TODO: check correctness
         self.program = program
         self.args = args if args else []
 
-
-    async def run(self, ec: ExecutionContext[Single]) -> CompletedSubprocess:
+    async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> PrivPrecResult:
         path = ec.get_tool_data_path(self)
+        args = [self.program] + self.args
