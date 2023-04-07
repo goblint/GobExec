@@ -74,6 +74,11 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):  # TODO: check correctness
 
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> PrivPrecResult:
         path = ec.get_tool_data_path(self)
-
-        args = [self.program] + [ ec.get_tool_data_path(tool) for tool in self.args]
-        cp = await ec.subprocess_exec()
+        with(path / 'out.txt', 'w') as out_file:
+            args = [self.program] + [str(ec.get_tool_data_path(tool)) for tool in self.args]
+            cp = await ec.subprocess_exec(
+                args[0],
+                stdout = out_file,
+                stderr=asyncio.subprocess.STDOUT
+            )
+            return PrivPrecResult(str(path / 'out.txt'))
