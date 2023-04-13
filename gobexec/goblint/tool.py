@@ -62,19 +62,22 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             return cp
 
 
-class PrivPrecTool(Tool[Single, PrivPrecResult]):  # TODO: check correctness
+class PrivPrecTool(Tool[Single, PrivPrecResult]):
+    name = str
     program: str
     args: List[GoblintTool]
 
     def __init__(self,
-                 program: str = "./privPrecCompare",
+                 name = "privPrecCompare",
+                 program: str = "../analyzer/privPrecCompare",
                  args: List[GoblintTool] = None) -> None:
+        self.name = name
         self.program = program
         self.args = args if args else []
 
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> PrivPrecResult:
         path = ec.get_tool_data_path(self)
-        with(path / 'out.txt', 'w') as out_file:
+        with(path / 'out.txt').open("w") as out_file:
             args = [self.program] + [str(ec.get_tool_data_path(tool)) for tool in self.args]
             cp = await ec.subprocess_exec(
                 args[0],

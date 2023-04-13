@@ -85,7 +85,7 @@ class Rusage(Result):
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'Rusage':
         return Rusage(cp.rusage)
 
-@dataclass(init=False)#TODO: check correctness
+@dataclass(init=False)
 class LineSummary(Result):
     live: int
     dead: int
@@ -100,7 +100,7 @@ class LineSummary(Result):
         return env.get_template("linesummary.jinja")
 
     @staticmethod
-    async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'LineSummary':
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'LineSummary':
         stdout = cp.stdout.decode("utf-8")
         live = len(re.findall(r"/live:[ ]*([0-9]*)/", stdout))
         dead = len(re.findall(r"/dead:[ ]*([0-9]*)/", stdout))

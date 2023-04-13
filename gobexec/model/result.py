@@ -100,7 +100,7 @@ class MultiResult(Result, Generic[R]):
         else:
             return ResultKind.DEFAULT
 
-@dataclass(init=False)#TODO: check correctness
+@dataclass(init=False)
 class PrivPrecResult(Result):
     result_path: str
 
@@ -108,5 +108,5 @@ class PrivPrecResult(Result):
         self.result_path = result_path
 
     def template(self, env: Environment) -> Template:
-        ...#TODO: Create template for privPrecCompare result
+        return env.get_template('privprecresult.jinja')
 
