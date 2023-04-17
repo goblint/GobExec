@@ -49,13 +49,16 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
                    [str(file) for file in benchmark.files]
+            if self.dump is True:
+                args += ["--set", "exp.priv-prec-dump", data_path.absolute() / "priv.txt"]
             # print(args)
             cp = await ec.subprocess_exec(
                 args[0],
                 *args[1:],
                 # capture_output=True,
                 stdout=out_file,
-                stderr=asyncio.subprocess.STDOUT
+                stderr=asyncio.subprocess.STDOUT,
+                cwd = benchmark.files[0].parent
             )
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
@@ -79,11 +82,12 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> PrivPrecResult:
         path = ec.get_tool_data_path(self)
         with(path / 'out.txt').open("w") as out_file:
-            args = [self.program] + [str(ec.get_tool_data_path(tool)) for tool in self.args]
+            args = [self.program] + [str(ec.get_tool_data_path(tool)/"priv.txt") for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
                 *args[1:],
-                stdout = out_file,
-                stderr=asyncio.subprocess.STDOUT
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT,
+
             )
             return PrivPrecResult(str(path / 'out.txt'))

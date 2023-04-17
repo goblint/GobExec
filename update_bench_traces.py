@@ -14,8 +14,8 @@ from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
-        program="../analyzer/goblint",
-        args=["--conf", "../analyzer/conf/traces.json", "--enable", "dbg.debug"] + args,
+        program=str(Path("../analyzer/goblint").absolute()),
+        args=["--conf", str(Path("../analyzer/conf/traces.json").absolute()), "--enable", "dbg.debug"] + args,
         dump= True
     )
 
@@ -27,8 +27,8 @@ def index_tool_factory(name, args):
 
     )
 
-matrix = txtindex.load(Path("../bench/index/traces.txt"),index_tool_factory)
-privprec = tool.PrivPrecTool()
+matrix = txtindex.load(Path("../bench/index/traces.txt").absolute(),index_tool_factory)
+privprec = tool.PrivPrecTool(args= matrix.tools.copy())
 matrix.tools.append(privprec)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
