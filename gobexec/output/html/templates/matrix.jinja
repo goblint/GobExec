@@ -19,17 +19,23 @@
         {% if loop.first %}
             <th scope="row" rowspan={{ group_result.benchmarks|length }} style="vertical-align: top;">{{ group_result.group.name }}</th>
         {% endif %}
-            <th scope="row">{{ benchmark_results.benchmark.name }}</th>
+        <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
                 {% if benchmark_result.result().result.kind == ResultKind.DEFAULT %}
-                    <td class="text-nowrap">
-                    </td>
-                    <td class="text-nowrap">
+                    {% if "asserts" in result.tools[0].name%}
+                        <td class="text-nowrap"></td>
+                        <td class="text-nowrap">
+                    {% endif %}
+
+                    {% if loop.last %}
+                        <td class="text-nowrap">
+                    {% endif %}
+
                 {% endif %}
                 {{ benchmark_result.result().result|template }}
             {% else %}
-                <td></td>
+
             {% endif %}
         {% endfor %}
         </tr>

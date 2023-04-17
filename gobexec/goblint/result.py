@@ -102,7 +102,10 @@ class LineSummary(Result):
     @staticmethod
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'LineSummary':
         stdout = cp.stdout.decode("utf-8")
-        live = len(re.findall(r"/live:[ ]*([0-9]*)/", stdout))
-        dead = len(re.findall(r"/dead:[ ]*([0-9]*)/", stdout))
-        total = live + dead
-        return LineSummary(live, dead, total)
+        live = re.search(r"live:[ ]*([0-9]*)", stdout)
+        dead = re.search(r"dead:[ ]*([0-9]*)", stdout)
+        if live is None and dead is None:
+            return LineSummary(-1,-1,-1)
+        else:
+            total = int(live.group(1)) + int(dead.group(1))
+            return LineSummary(int(live.group(1)), int(dead.group(1)), total)

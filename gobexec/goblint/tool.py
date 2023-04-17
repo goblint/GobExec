@@ -70,7 +70,8 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
     def __init__(self,
                  name = "privPrecCompare",
                  program: str = "../analyzer/privPrecCompare",
-                 args: List[GoblintTool] = None) -> None:
+                 args: List[GoblintTool] = None,
+                 ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
@@ -79,8 +80,9 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
         path = ec.get_tool_data_path(self)
         with(path / 'out.txt').open("w") as out_file:
             args = [self.program] + [str(ec.get_tool_data_path(tool)) for tool in self.args]
-            cp = await ec.subprocess_exec(
+            await ec.subprocess_exec(
                 args[0],
+                *args[1:],
                 stdout = out_file,
                 stderr=asyncio.subprocess.STDOUT
             )

@@ -30,7 +30,7 @@ def index_tool_factory(name, args):
         TimeResult,
         assert_summary_extractor,
         #AssertSummaryExtractor(),
-        RaceSummary,
+        #RaceSummary,
         primary=assert_summary_extractor
     )
 matrix = txtindex.load(Path("../bench/index/traces-rel-toy.txt"), index_tool_factory)

@@ -15,7 +15,7 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program="../analyzer/goblint",
-        args=["--conf", "../analyzer/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
+        args=["--conf", "../analyzer/conf/traces.json", "--enable", "dbg.debug"] + args,
         dump= True
     )
 
@@ -23,14 +23,13 @@ def index_tool_factory(name, args):
         goblint,
         TimeResult,
         LineSummary,
-
+        #PrivPrecResult
 
     )
 
+matrix = txtindex.load(Path("../bench/index/traces.txt"),index_tool_factory)
 privprec = tool.PrivPrecTool()
-matrix = txtindex.load(Path("../bench/index/traces-rel-toy.txt"),index_tool_factory)
 matrix.tools.append(privprec)
-
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
