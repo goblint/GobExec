@@ -110,3 +110,14 @@ class PrivPrecResult(Result):
     def template(self, env: Environment) -> Template:
         return env.get_template('privprecresult.jinja')
 
+
+@dataclass(init=False)
+class ApronPrecResult(Result):
+    result_path: str
+
+    def __init__(self,result_path: str) -> None:
+        self.result_path = result_path
+
+    def template(self, env):
+        return env.get_template('apronprecresult.jinja')
+

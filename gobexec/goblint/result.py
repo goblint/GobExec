@@ -109,3 +109,40 @@ class LineSummary(Result):
         else:
             total = int(live.group(1)) + int(dead.group(1))
             return LineSummary(int(live.group(1)), int(dead.group(1)), total)
+
+
+@dataclass(init=False)
+class ThreadSummary(Result):
+    thread_id: int
+    unique_thread_id: int
+    max_protected: int
+    sum_protected: int
+    mutexes_count: int
+
+    def __init__(self, thread_id: int, unique_thread_id: int,
+                 max_protected: int, sum_protected: int, mutexes_count: int):
+        self.thread_id = thread_id
+        self.unique_thread_id = unique_thread_id
+        self.max_protected= max_protected
+        self.sum_protected = sum_protected
+        self.mutexes_count = mutexes_count
+
+    def template(self, env):
+        return env.get_template("threadsummary.jinja")
+
+    @staticmethod
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'ThreadSummary':
+        stdout = cp.stdout.decode("utf-8")
+        thread_id = re.search(r"Encountered number of thread IDs \(unique\): ([0-9]*)",stdout)
+        thread_id = 0 if thread_id is None else int(thread_id.group(1))
+        unique_thread_id = re.search(r"Encountered number of thread IDs \(unique\): [0-9]* \(([0-9]*)\)",stdout)
+        unique_thread_id = 0 if unique_thread_id is None else int(unique_thread_id.group(1))
+        max_protected = re.search(r"Max number variables of protected by a mutex: ([0-9]*)",stdout)
+        max_protected = 0 if max_protected is None else int(max_protected.group(1))
+        sum_protected = re.search(r"Total number of protected variables \(including duplicates\): ([0-9]*)",stdout)
+        sum_protected = 0 if sum_protected is None else int(sum_protected.group(1))
+        mutexes_count = re.search(r"Number of mutexes: ([0-9]*)",stdout)
+        mutexes_count = 0 if mutexes_count is None else int(mutexes_count.group(1))
+
+        return ThreadSummary(thread_id,unique_thread_id,max_protected,sum_protected,mutexes_count)
+

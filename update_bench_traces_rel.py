@@ -3,7 +3,7 @@ from pathlib import Path
 import gobexec.main
 from gobexec.goblint import tool
 from gobexec.goblint.bench import txtindex
-from gobexec.goblint.result import LineSummary
+from gobexec.goblint.result import ThreadSummary
 from gobexec.goblint.tool import GoblintTool
 
 from gobexec.model.result import TimeResult
@@ -15,21 +15,23 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces.json").absolute()), "--enable", "dbg.debug"] + args,
-        dump= True
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
+        dump= 'apron'
     )
 
     return ExtractTool(
         goblint,
         TimeResult,
-        LineSummary,
+        ThreadSummary,
         #PrivPrecResult
 
     )
 
-matrix = txtindex.load(Path("../bench/index/traces.txt").absolute(),index_tool_factory)
-privprec = tool.PrivPrecTool(args= matrix.tools.copy())
-matrix.tools.append(privprec)
+matrix = txtindex.load(Path("../bench/index/traces-relational.txt").absolute(),index_tool_factory)
+apronprec = tool.ApronPrecTool(args= matrix.tools.copy())
+matrix.tools.append(apronprec)
+# privprec = tool.PrivPrecTool(args= matrix.tools.copy())
+# matrix.tools.append(privprec)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
