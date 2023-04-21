@@ -146,3 +146,22 @@ class ThreadSummary(Result):
 
         return ThreadSummary(thread_id,unique_thread_id,max_protected,sum_protected,mutexes_count)
 
+
+@dataclass(init=False)
+class AssertTypeSummary(Result):
+    success: int
+    unknown: int
+
+    def __init__(self,success:int,unknown: int):
+        self.success = success
+        self.unknown = unknown
+
+    def template(self, env):
+        return env.get_template("asserttypesummary.jinja")
+
+    @staticmethod
+    async def extract(ec:ExecutionContext[Any],cp:CompletedSubprocess) -> 'AssertTypeSummary':
+        stdout = cp.stdout.decode("utf-8")
+        success = len(re.findall(r"\[Success\]\[Assert\]",stdout))
+        unknown = len(re.findall(r"\[Warning\]\[Assert\]",stdout))
+        return AssertTypeSummary(success,unknown)
