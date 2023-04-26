@@ -23,15 +23,10 @@ def index_tool_factory(name, args):
         goblint,
         TimeResult,
         AssertTypeSummary,
-        #PrivPrecResult
 
     )
 
 matrix = txtindex.load(Path("../bench/index/traces-rel-toy.txt").absolute(),index_tool_factory)
-apronprec = tool.ApronPrecTool(args= matrix.tools.copy())
-matrix.tools.append(apronprec)
-# privprec = tool.PrivPrecTool(args= matrix.tools.copy())
-# matrix.tools.append(privprec)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])

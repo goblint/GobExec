@@ -14,7 +14,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     name: str
     program: str
     args: List[str]
-    dump: bool
+    dump: str
 
     def __init__(self,
                  name: str = "Goblint",
@@ -83,7 +83,7 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
 
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> PrivPrecResult:
         path = ec.get_tool_data_path(self)
-        with(path / 'out.txt').open("w") as out_file:
+        with(path / 'priv_compare_out.txt').open("w") as out_file:
             args = [self.program] + [str(ec.get_tool_data_path(tool)/"priv.txt") for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
@@ -110,7 +110,7 @@ class ApronPrecTool(Tool[Single,ApronPrecResult]):
     async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> ApronPrecResult:
         path = ec.get_tool_data_path(self)
         with (path / 'out.txt').open('w') as out_file:
-            args = [self.program] + [str(ec.get_tool_data_path(tool)/'apron.txt') for tool in self.args]
+            args = [self.program] + [str(ec.get_tool_data_path(tool).absolute()/'apron.txt') for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
                 *args[1:],

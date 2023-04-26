@@ -20,7 +20,7 @@ assert_counter = tools.AssertCounter()
 def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
-        program="../analyzer/goblint",
+        program=str(Path("../analyzer/goblint").absolute()),
         args=["--conf", "../analyzer/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
         # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
     )
