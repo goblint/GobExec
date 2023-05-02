@@ -24,7 +24,7 @@ def index_tool_factory(name, args):
         assert_summary_extractor,
         primary=assert_summary_extractor
     )
-matrix = txtindex.load(Path("../bench/index/traces-relational-watts.txt"), index_tool_factory)
+matrix = txtindex.load(Path("../bench/index/traces-relational-watts.txt").absolute(), index_tool_factory)
 matrix.tools.insert(0, assert_counter)
 
 html_renderer = FileRenderer(Path("out.html"))

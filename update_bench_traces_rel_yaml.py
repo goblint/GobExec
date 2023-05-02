@@ -2,7 +2,7 @@ from pathlib import Path
 
 import gobexec.main
 from gobexec.goblint.bench import txtindex
-from gobexec.goblint.result import AssertTypeSummary
+from gobexec.goblint.result import AssertTypeSummary, YamlSummary
 from gobexec.goblint.tool import GoblintTool
 
 from gobexec.model.result import TimeResult
@@ -14,14 +14,15 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel-toy.json").absolute()), "--enable", "dbg.debug"] + args,
-        dump= 'apron'
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
+        dump= 'apron',
+        validate= True
     )
 
     return ExtractTool(
         goblint,
         TimeResult,
-        AssertTypeSummary,
+        YamlSummary,
 
     )
 
