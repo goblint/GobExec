@@ -24,6 +24,9 @@ def index_tool_factory(name, args):
         assert_summary_extractor,
         primary=assert_summary_extractor
     )
+
+# TODO: add asserts etc totals to HTML
+
 matrix = txtindex.load(Path("../bench/index/traces-relational-watts.txt").absolute(), index_tool_factory)
 matrix.tools.insert(0, assert_counter)
 

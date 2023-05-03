@@ -25,6 +25,8 @@ def index_tool_factory(name, args):
 
     )
 
+# TODO: HTML columns broken
+
 matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(),index_tool_factory)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()

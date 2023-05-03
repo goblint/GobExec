@@ -23,9 +23,12 @@ def index_tool_factory(name, args):
         goblint,
         TimeResult,
         ThreadSummary,
+        # TODO: average protecting
         #PrivPrecResult
 
     )
+
+# TODO: separate precision dump run to exclude dumping time
 
 matrix = txtindex.load(Path("../bench/index/traces-relational.txt").absolute(),index_tool_factory)
 apronprec = tool.ApronPrecTool(args= matrix.tools.copy())
