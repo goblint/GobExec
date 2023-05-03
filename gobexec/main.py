@@ -14,7 +14,7 @@ def run(matrix, renderer):
 
         data_path = Path("out")
         data_path.mkdir(parents=True, exist_ok=True)
-        cpu_sem = asyncio.BoundedSemaphore(14)
+        cpu_sem = asyncio.BoundedSemaphore(10)
         ec = RootExecutionContext(data_path, cpu_sem, rusage_child_watcher)
         result = await matrix.execute(ec, lambda: renderer.render(result, ec.progress))  # tying the knot!
         await result.join()
