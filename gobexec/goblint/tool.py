@@ -91,7 +91,7 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
         path = ec.get_tool_data_path(self)
         for tool in self.args:
             await ec.get_tool_result(tool)
-        with(path / 'priv_compare_out.txt').open("w") as out_file:
+        with(path / 'out.txt').open("w") as out_file:
             args = [self.program] + [str(ec.get_tool_data_path(tool)/"priv.txt") for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
