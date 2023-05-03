@@ -3,7 +3,7 @@ from pathlib import Path
 import gobexec.main
 from gobexec.goblint import tool
 from gobexec.goblint.bench import txtindex
-from gobexec.goblint.result import AssertTypeSummary
+from gobexec.goblint.extractor import AssertSummaryExtractor
 from gobexec.goblint.tool import GoblintTool
 
 from gobexec.model.result import TimeResult
@@ -22,7 +22,7 @@ def index_tool_factory(name, args):
     return ExtractTool(
         goblint,
         TimeResult,
-        AssertTypeSummary,
+        AssertSummaryExtractor(),
 
     )
 
