@@ -95,6 +95,7 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
             args = [self.program] + [str(ec.get_tool_data_path(tool)/"priv.txt") for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
+                *args[1:],
                 stdout=out_file,
                 stderr=asyncio.subprocess.STDOUT,
 
