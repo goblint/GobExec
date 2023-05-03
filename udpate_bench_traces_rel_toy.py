@@ -15,7 +15,7 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel-toy.json").absolute()), "--enable", "dbg.debug"] + args,
+        args=["--conf", str(Path("../analyzer/conf/traces-rel-toy.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "dbg.debug", "-v"] + args,
         dump= 'apron'
     )
 
