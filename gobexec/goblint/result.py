@@ -27,6 +27,15 @@ class RaceSummary(Result):
     def template(self, env):
         return env.get_template("racesummary.jinja")
 
+    @property
+    def kind(self):
+        if self.unsafe > 0:
+            return ResultKind.ERROR
+        elif self.vulnerable > 0:
+            return ResultKind.WARNING
+        else:
+            return ResultKind.SUCCESS
+
     @staticmethod
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'RaceSummary':
         stdout = cp.stdout.decode("utf-8")
