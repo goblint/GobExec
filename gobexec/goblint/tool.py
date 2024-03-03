@@ -1,6 +1,6 @@
 import asyncio
 import tempfile
-from typing import List
+from typing import List, Optional
 
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
@@ -15,22 +15,26 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
     program: str
     args: List[str]
     dump: str
-    validate: bool
+    validate: Optional["GoblintTool"]
+    assertion: Optional["GoblintTool"]
 
     def __init__(self,
                  name: str = "Goblint",
                  program: str = "goblint",
                  args: List[str] = None,
                  dump: str = '',
-                 validate: bool = False
+                 validate: Optional["GoblintTool"] = None,
+                 assertion: Optional["GoblintTool"] = None
                  ) -> None:
         self.name = name
         self.program = program
         self.args = args if args else []
         self.dump = dump
         self.validate = validate
+        self.assertion = assertion
 
-    # def run(self, benchmark: Single) -> str:
+        # def run(self, benchmark: Single) -> str:
+
     #     bench = Path("/home/simmo/dev/goblint/sv-comp/goblint-bench")
     #     args = ["/home/simmo/dev/goblint/sv-comp/goblint/goblint"] + self.args + benchmark.tool_data.get(ARGS_TOOL_KEY, []) + [str(bench / file) for file in benchmark.files]
     #     print(args)
@@ -51,14 +55,21 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                    ["--set", "goblint-dir", goblint_dir.absolute()] + \
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
-                   [str(file) for file in benchmark.files]
+                   [str(file) for file in benchmark.files] if self.assertion is None else [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
             if self.dump == "priv":
                 args += ["--set", "exp.priv-prec-dump", data_path.absolute() / "priv.txt"]
             elif self.dump == "apron":
                 args += ["--set", "exp.relation.prec-dump", data_path.absolute() / "apron.txt"]
-
-            if self.validate is True:
-                args += ["--set",  "witness.yaml.validate", str(benchmark.files[0].parent / (str(benchmark.files[0].name)[:-2] + "_traces_rel.yml"))]
+            elif self.dump == "witness":
+                args += ["--set", "witness.yaml.path", data_path.absolute() / "witness.yaml"]
+            elif self.dump == "assert":
+                args += ["--set", "trans.output",data_path.absolute() / "out.c"]
+            if self.validate is not None:
+                await ec.get_tool_result(self.validate)
+                args += ["--set", "witness.yaml.validate",
+                         ec.get_tool_data_path(self.validate).absolute() / "witness.yaml"]
+            if self.assertion is not None:
+                await ec.get_tool_result(self.assertion)
 
             cp = await ec.subprocess_exec(
                 args[0],
@@ -66,7 +77,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                 # capture_output=True,
                 stdout=out_file,
                 stderr=asyncio.subprocess.STDOUT,
-                cwd = benchmark.files[0].parent
+                cwd=benchmark.files[0].parent
             )
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
@@ -92,7 +103,7 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
         for tool in self.args:
             await ec.get_tool_result(tool)
         with(path / 'priv_compare_out.txt').open("w") as out_file:
-            args = [self.program] + [str(ec.get_tool_data_path(tool)/"priv.txt") for tool in self.args]
+            args = [self.program] + [str(ec.get_tool_data_path(tool) / "priv.txt") for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
                 stdout=out_file,
@@ -101,7 +112,8 @@ class PrivPrecTool(Tool[Single, PrivPrecResult]):
             )
             return PrivPrecResult(str(path / 'out.txt'))
 
-class ApronPrecTool(Tool[Single,ApronPrecResult]):
+
+class ApronPrecTool(Tool[Single, ApronPrecResult]):
     name: str
     program: str
     args: List[GoblintTool]
@@ -120,11 +132,11 @@ class ApronPrecTool(Tool[Single,ApronPrecResult]):
         for tool in self.args:
             await ec.get_tool_result(tool)
         with (path / 'out.txt').open('w') as out_file:
-            args = [self.program] + [str(ec.get_tool_data_path(tool).absolute()/'apron.txt') for tool in self.args]
+            args = [self.program] + [str(ec.get_tool_data_path(tool).absolute() / 'apron.txt') for tool in self.args]
             await ec.subprocess_exec(
                 args[0],
                 *args[1:],
-                stdout = out_file,
-                stderr = asyncio.subprocess.STDOUT,
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT,
             )
-            return ApronPrecResult(str(path/'out.txt'))
+            return ApronPrecResult(str(path / 'out.txt'))
