@@ -208,7 +208,7 @@ class ConcratSummary(Result):
     unsafe: int
     uncalled: int
 
-    def __init__(self, safe: int, vulnerable: int, unsafe: int, uncalled: int):
+    def __init__(self, safe: int, vulnerable: int, unsafe: int, uncalled: int) -> None:
         self.safe = safe
         self.vulnerable = vulnerable
         self.unsafe = unsafe
