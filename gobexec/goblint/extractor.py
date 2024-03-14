@@ -3,7 +3,7 @@ import resource
 from typing import Any, Optional
 
 from gobexec.goblint.bench.tools import AssertCount
-from gobexec.goblint.result import AssertSummary
+from gobexec.goblint.result import AssertSummary, LineSummary
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.tool import Tool
 from gobexec.model.tools import ResultExtractor

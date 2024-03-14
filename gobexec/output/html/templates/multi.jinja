@@ -1,3 +1,15 @@
 {% for result in this.results %}
-{{ result|template }}
+    {% if result.kind == ResultKind.SUCCESS %}
+        <td class="text-nowrap bg-success bg-opacity-25">
+    {% elif result.kind == ResultKind.WARNING %}
+        <td class="text-nowrap bg-warning bg-opacity-25">
+    {% elif result.kind == ResultKind.FAILURE %}
+        <td class="text-nowrap bg-danger bg-opacity-25">
+    {% elif result.kind == ResultKind.ERROR %}
+        <td class="text-nowrap bg-secondary bg-opacity-25">
+    {% else %}
+        <td class="text-nowrap">
+    {% endif %}
+    {{ result|template }}
+    </td>
 {% endfor %}
