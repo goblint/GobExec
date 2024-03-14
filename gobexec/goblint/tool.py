@@ -54,8 +54,8 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             args = [self.program] + \
                    ["--set", "goblint-dir", goblint_dir.absolute()] + \
                    self.args + \
-                   benchmark.tool_data.get(ARGS_TOOL_KEY, []) + \
-                   [str(file) for file in benchmark.files] if self.assertion is None else [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
+                   benchmark.tool_data.get(ARGS_TOOL_KEY, [])
+                   #[str(file) for file in benchmark.files] if self.assertion is None else [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
             if self.dump == "priv":
                 args += ["--set", "exp.priv-prec-dump", data_path.absolute() / "priv.txt"]
             elif self.dump == "apron":
@@ -68,7 +68,11 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                 await ec.get_tool_result(self.validate)
                 args += ["--set", "witness.yaml.validate",
                          ec.get_tool_data_path(self.validate).absolute() / "witness.yaml"]
+            if self.assertion is None:
+                args += [str(file) for file in benchmark.files]
             if self.assertion is not None:
+                args += [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
+                args += ["--enable", "ana.sv-comp.functions"]
                 await ec.get_tool_result(self.assertion)
 
             cp = await ec.subprocess_exec(

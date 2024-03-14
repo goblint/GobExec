@@ -12,7 +12,8 @@ from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 goblint_assert = GoblintTool(
     name="goblint_assert",
     program=str(Path("../analyzer/goblint").absolute()),
-    args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug","--set", "trans.activated[+]", "assert"],
+    args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug","--set", "trans.activated[+]", "assert",
+          "--set" ,"ana.activated[+]" ,"apron" ,"--set" ,"ana.path_sens[+]" ,"threadflag", "--set" ,"ana.relation.privatization", "mutex-meet-tid-cluster12"],
     dump = "assert"
 )
 
