@@ -1,13 +1,99 @@
 import asyncio
 import tempfile
 from typing import List, Optional
-
-from gobexec.model.benchmark import Single
+import shutil
+import os
+from glob import glob
+from gobexec.model.benchmark import Single, Incremental
 from gobexec.model.context import ExecutionContext, CompletedSubprocess
 from gobexec.model.result import PrivPrecResult, ApronPrecResult
 from gobexec.model.tool import Tool
 
 ARGS_TOOL_KEY = "goblint-args"
+
+
+class GoblintToolFromScratch(Tool[Incremental, CompletedSubprocess]):
+    name: str
+    program: str
+    args: List[str]
+
+    def __init__(self,
+                 name: str = "Goblint",
+                 program: str = "goblint",
+                 args: List[str] = None,
+                 ) -> None:
+        self.name = name
+        self.program = program
+        self.args = args if args else []
+
+    async def run_async(self, ec: ExecutionContext[Incremental], benchmark: Incremental) -> CompletedSubprocess:
+        data_path = ec.get_tool_data_path(self)
+        goblint_dir = data_path / ".goblint"
+        goblint_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy(benchmark.files, data_path)
+        with (data_path / "out.txt").open("w+b") as out_file:
+            args = [self.program] + \
+                   ["--conf", "index/conf/td3.json", "--enable incremental.save", "--set", "incremental.save-dir",
+                    goblint_dir.absolute(), "-v", glob("/*.c", recursive=False)[0]] + \
+                   self.args + \
+                   benchmark.tool_data.get(ARGS_TOOL_KEY, [])
+
+            cp = await ec.subprocess_exec(
+                args[0],
+                *args[1:],
+                # capture_output=True,
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT,
+                cwd=benchmark.files[0].parent
+            )
+            out_file.seek(0)
+            cp.stdout = out_file.read()  # currently for extractors
+
+            await ec.subprocess_exec(["patch", "-b", glob("/*.c", recursive=False)[0], benchmark.patch])
+            return cp
+
+
+class GoblintToolIncremental(Tool[Incremental, CompletedSubprocess]):
+    name: str
+    program: str
+    args: List[str]
+    from_scratch_path: str
+
+    def __init__(self,
+                 name: str = "Goblint",
+                 program: str = "goblint",
+                 args: List[str] = None,
+                 from_scratch_path: str = ""
+                 ) -> None:
+        self.name = name
+        self.program = program
+        self.args = args if args else []
+        self.from_scratch_path = from_scratch_path
+
+    async def run_async(self, ec: ExecutionContext[Incremental], benchmark: Incremental) -> CompletedSubprocess:
+        data_path = ec.get_tool_data_path(self)
+        goblint_dir = data_path / ".goblint"
+        goblint_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy(benchmark.files, data_path)
+        with (data_path / "out.txt").open("w+b") as out_file:
+            args = [self.program] + \
+                   ["--conf", "index/conf/td3.json", "--enable incremental.load", "--set", "incremental.load-dir",
+                    goblint_dir.absolute(), "-v", glob("/*.c", recursive=False)[0]] + \
+                   self.args + \
+                   benchmark.tool_data.get(ARGS_TOOL_KEY, [])
+
+            cp = await ec.subprocess_exec(
+                args[0],
+                *args[1:],
+                # capture_output=True,
+                stdout=out_file,
+                stderr=asyncio.subprocess.STDOUT,
+                cwd=benchmark.files[0].parent
+            )
+            out_file.seek(0)
+            cp.stdout = out_file.read()  # currently for extractors
+
+            return cp
 
 
 class GoblintTool(Tool[Single, CompletedSubprocess]):
@@ -55,7 +141,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
                    ["--set", "goblint-dir", goblint_dir.absolute()] + \
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, [])
-                   #[str(file) for file in benchmark.files] if self.assertion is None else [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
+            # [str(file) for file in benchmark.files] if self.assertion is None else [ec.get_tool_data_path(self.assertion).absolute() / "out.c"]
             if self.dump == "priv":
                 args += ["--set", "exp.priv-prec-dump", data_path.absolute() / "priv.txt"]
             elif self.dump == "apron":
@@ -63,7 +149,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             elif self.dump == "witness":
                 args += ["--set", "witness.yaml.path", data_path.absolute() / "witness.yaml"]
             elif self.dump == "assert":
-                args += ["--set", "trans.output",data_path.absolute() / "out.c"]
+                args += ["--set", "trans.output", data_path.absolute() / "out.c"]
             if self.validate is not None:
                 await ec.get_tool_result(self.validate)
                 args += ["--set", "witness.yaml.validate",
