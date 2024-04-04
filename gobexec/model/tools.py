@@ -32,7 +32,7 @@ class ExtractTool(Tool[B, R]):
         return self.delegate.name
 
     async def run_async(self, ec: ExecutionContext[B], benchmark: B) -> R:
-        cp = await self.delegate.run_async(ec, benchmark)
+        cp = await ec.get_tool_result(self.delegate)
         results = await asyncio.gather(*[extractor.extract(ec, cp) for extractor in self.extractors])
         if self.primary:
             primary_result = results[self.extractors.index(self.primary)]  # TODO: something better than index-based

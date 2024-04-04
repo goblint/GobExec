@@ -233,3 +233,22 @@ class ConcratSummary(Result):
             else:
                 uncalled.remove(elem)
         return ConcratSummary(safe, vulnerable, unsafe, len(uncalled))
+
+
+@dataclass(init=False)
+class IncrementalSummary(Result):
+    vars: int
+    evals: int
+
+    def __init__(self, vars: int, evals: int):
+        self.vars = vars
+        self.evals = evals
+
+    def template(self, env):
+        return env.get_template("incremental.jinja")
+
+    @staticmethod
+    async def extract(ec: ExecutionContext, cp: CompletedSubprocess):
+        stdout = cp.stdout.decode("utf-8")
+        data = re.search(r"\[\w+]\s\w+.{3}(\d+)\s+\w+.{3}(\d+)\s+\w+.{3}(\d+)", stdout)
+        return IncrementalSummary(data.group(1), data.group(2))

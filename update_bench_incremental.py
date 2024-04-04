@@ -4,7 +4,7 @@ from pathlib import Path
 import gobexec.main
 from gobexec.goblint import tool
 from gobexec.goblint.bench import txtindex
-from gobexec.goblint.result import ThreadSummary
+from gobexec.goblint.result import ThreadSummary, IncrementalSummary
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model.benchmark import Incremental, Group
 
@@ -40,9 +40,21 @@ group = Group(
 matrix = Matrix(
     name="test",
     groups=[group],
-    tools=[from_scratch, incremental]
+    tools=[]
 )
 
+extractor = ExtractTool(
+    from_scratch,
+    TimeResult,
+    IncrementalSummary
+)
+extractor2 = ExtractTool(
+    incremental,
+    TimeResult,
+    IncrementalSummary
+)
+matrix.tools.insert(0,extractor)
+matrix.tools.insert(1,extractor2)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
