@@ -3,7 +3,7 @@ from pathlib import Path
 
 import gobexec.main
 from gobexec.goblint import tool
-from gobexec.goblint.bench import txtindex
+from gobexec.goblint.bench import txtindex, yamlindex
 from gobexec.goblint.result import ThreadSummary, IncrementalSummary
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model.benchmark import Incremental, Group
@@ -19,42 +19,57 @@ from_scratch = GoblintToolFromScratch(
 
 )
 
-incremental = GoblintToolIncremental(
-    name="incremental",
-    program=str(Path("../analyzer/goblint").absolute()),
-    from_scratch=from_scratch
-)
 
-bench = Incremental(
-    name="aget",
-    description="",
-    files=Path("../bench/pthread/aget_comb.c").absolute(),
-    patch=Path("../bench/pthread/aget_comb02.patch").absolute(),
-    tool_data={}
-)
-group = Group(
-    name="test",
-    benchmarks=[bench]
-)
+def index_tool_factory(name, args):
+    incremental = GoblintToolIncremental(
+        name=name,
+        program=str(Path("../analyzer/goblint").absolute()),
+        from_scratch=from_scratch
+    )
+    return ExtractTool(
+        incremental,
+        TimeResult,
+        IncrementalSummary
+    )
 
-matrix = Matrix(
-    name="test",
-    groups=[group],
-    tools=[]
-)
 
-extractor = ExtractTool(
-    from_scratch,
-    TimeResult,
-    IncrementalSummary
-)
-extractor2 = ExtractTool(
-    incremental,
-    TimeResult,
-    IncrementalSummary
-)
-matrix.tools.insert(0,extractor)
-matrix.tools.insert(1,extractor2)
+# incremental = GoblintToolIncremental(
+#     name="incremental",
+#     program=str(Path("../analyzer/goblint").absolute()),
+#     from_scratch=from_scratch
+# )
+#
+# bench = Incremental(
+#     name="aget",
+#     description="",
+#     files=Path("../bench/pthread/aget_comb.c").absolute(),
+#     patch=Path("../bench/pthread/aget_comb02.patch").absolute(),
+#     tool_data={}
+# )
+# group = Group(
+#     name="test",
+#     benchmarks=[bench]
+# )
+#
+# matrix = Matrix(
+#     name="test",
+#     groups=[group],
+#     tools=[]
+# )
+
+# extractor = ExtractTool(
+#     from_scratch,
+#     TimeResult,
+#     IncrementalSummary
+# )
+# extractor2 = ExtractTool(
+#     incremental,
+#     TimeResult,
+#     IncrementalSummary
+# )
+matrix = yamlindex.load(Path(""))
+matrix.tools.insert(0, extractor)
+matrix.tools.insert(1, extractor2)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
