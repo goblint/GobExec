@@ -22,15 +22,20 @@ class ToolFactory(Protocol):
 def load(def_path: Path, set_path: List[Path], tool_factory: ToolFactory) -> Matrix[Incremental, R]:
     defsets_ = DefSets.from_paths(def_path, set_path)
     groups: List[Group[Incremental]] = []
-    tool: Tool[Incremental,R] = tool_factory(args=defsets_.def_.confs)
+    tool: Tool[Incremental,R] = tool_factory(name= "",args=defsets_.def_.confs)
     for set_ in defsets_.sets:
         groups.append(Group(name=set_.name, benchmarks=[]))
         for bench in set_.benchmarks:
+            patch_path = Path("../bench")/bench.path.with_suffix("."+"patch")
+            parts = list(patch_path.parts)
+            temp = parts[3].split(".")
+            parts[3] = temp[0]+"01."+temp[1]
+            patch_path = Path(*parts)
             groups[-1].benchmarks.append(Incremental(
                 name=bench.name,
                 description=bench.info,
-                files=bench.path,
-                patch=bench.path.with_suffix("."+"patch"),
+                files=Path("../bench")/bench.path,
+                patch= patch_path,
                 tool_data={
                         ARGS_TOOL_KEY: shlex.split(bench.param) if bench.param else []
                     }))

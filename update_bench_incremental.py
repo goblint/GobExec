@@ -67,9 +67,10 @@ def index_tool_factory(name, args):
 #     TimeResult,
 #     IncrementalSummary
 # )
-matrix = yamlindex.load(Path(""))
-matrix.tools.insert(0, extractor)
-matrix.tools.insert(1, extractor2)
+matrix = yamlindex.load(Path("../bench/index/defs/incremental.yaml"),[Path("../bench/index/sets/posix.yaml")],index_tool_factory)
+matrix.tools.insert(0,ExtractTool(from_scratch,TimeResult,IncrementalSummary))
+# matrix.tools.insert(0, extractor)
+# matrix.tools.insert(1, extractor2)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
