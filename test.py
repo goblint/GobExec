@@ -21,8 +21,8 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", "../analyzer/conf/traces-rel-toy.json", "--enable", "dbg.debug"] + args,
-        # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "dbg.debug"],
+        args=["--conf", "../analyzer/conf/traces-rel-toy.json", "--enable", "warn.debug"] + args,
+        # args=["--conf", "/home/simmo/dev/goblint/sv-comp/goblint/conf/traces-rel.json", "--enable", "warn.debug"],
     )
     assert_summary_extractor = AssertSummaryExtractor(assert_counter)
     return ExtractTool(

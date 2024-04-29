@@ -12,7 +12,7 @@ from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 goblint_assert = GoblintTool(
     name="goblint_assert",
     program=str(Path("../analyzer/goblint").absolute()),
-    args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug","--set", "trans.activated[+]", "assert",
+    args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug","--set", "trans.activated[+]", "assert",
           "--set" ,"ana.activated[+]" ,"apron" ,"--set" ,"ana.path_sens[+]" ,"threadflag", "--set" ,"ana.relation.privatization", "mutex-meet-tid-cluster12"],
     dump = "assert"
 )
@@ -21,7 +21,7 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "dbg.debug", "-v"] + args,
+        args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
         dump= 'apron',
         assertion = goblint_assert
     )
