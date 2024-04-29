@@ -179,6 +179,8 @@ class AssertTypeSummary(Result):
 
 @dataclass(init=False)
 class YamlSummary(Result):
+    name = "yaml"
+
     confirmed: int
     unconfirmed: int
 

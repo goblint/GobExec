@@ -68,6 +68,8 @@ class MatrixResult(Result, Generic[B, R]):
 
 @dataclass(init=False)
 class TimeResult(Result):
+    name = "time"
+
     time: float
 
     def __init__(self, time: float) -> None:

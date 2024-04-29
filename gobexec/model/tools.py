@@ -8,6 +8,8 @@ from gobexec.model.tool import R, Tool, B
 
 
 class ResultExtractor(ABC, Generic[R]):
+    name: str # TODO: not checked by abc
+
     @abstractmethod
     async def extract(self, ec: ExecutionContext[Any], cp: CompletedSubprocess) -> R:
         ...
@@ -26,7 +28,7 @@ class ExtractTool(Tool[B, R]):
         self.delegate = delegate
         self.extractors = list(extractors)
         self.primary = primary
-        self.columns = len(extractors)
+        self.columns = [extractor.name for extractor in extractors]
 
     @property
     def name(self):

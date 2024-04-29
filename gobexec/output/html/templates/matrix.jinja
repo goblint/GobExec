@@ -8,15 +8,15 @@
         <th></th>
         <th></th>
     {% for tool in result.tools %}
-        <th scope="col" colspan="{{ tool.columns }}">{{ tool.name }}</th>
+        <th scope="col" colspan="{{ tool.columns|length }}">{{ tool.name }}</th>
     {% endfor %}
     </tr>
     <tr>
         <th scope="col">Group</th>
         <th scope="col">Benchmark</th>
     {% for tool in result.tools %}
-        {% for i in range(tool.columns) %}
-            <th scope="col">{{ i }}</th>
+        {% for column in tool.columns %}
+            <th scope="col">{{ column }}</th>
         {% endfor %}
     {% endfor %}
     </tr>
