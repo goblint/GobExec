@@ -13,7 +13,7 @@ goblint_witness = GoblintTool(
     name="witness_gen",
     program=str(Path("../analyzer/goblint").absolute()),
     args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug", "--enable",
-          "witness.yaml.enabled"],
+          "witness.yaml.enabled", "--set", "ana.activated[+]", "apron", "--set", "ana.path_sens[+]", "threadflag", "--set", "ana.relation.privatization", "mutex-meet-tid-cluster12", "--set", "witness.yaml.entry-types[-]", "invariant_set"],
     dump='witness'
 
 )
