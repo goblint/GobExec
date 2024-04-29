@@ -22,6 +22,7 @@ def index_tool_factory(name, args):
     return ExtractTool(
         goblint,
         TimeResult,
+        # TODO: total logical lines
         ThreadSummary,
         # TODO: average protecting
         #PrivPrecResult

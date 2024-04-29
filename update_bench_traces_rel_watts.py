@@ -21,6 +21,7 @@ def index_tool_factory(name, args):
     return ExtractTool(
         goblint,
         TimeResult,
+        # TODO: total logical lines
         assert_summary_extractor,
         primary=assert_summary_extractor
     )
