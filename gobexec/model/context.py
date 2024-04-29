@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TypeVar, Any, TYPE_CHECKING, Generic
 
+from jinja2 import Environment, Template
+
 from gobexec.asyncio.child_watcher import RusageThreadedChildWatcher
 from gobexec.executor import Progress
 from gobexec.model.base import Result
@@ -17,11 +19,14 @@ R = TypeVar('R', bound=Result)
 
 
 @dataclass
-class CompletedSubprocess:
+class CompletedSubprocess(Result):
     process: Process
     stdout: bytes
     stderr: bytes
     rusage: resource.struct_rusage
+
+    def template(self, env: Environment) -> Template:
+        return env.from_string("<td></td>")
 
 
 class ExecutionContext(Generic[B]):

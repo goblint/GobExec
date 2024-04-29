@@ -26,6 +26,7 @@ class ExtractTool(Tool[B, R]):
         self.delegate = delegate
         self.extractors = list(extractors)
         self.primary = primary
+        self.columns = len(extractors)
 
     @property
     def name(self):

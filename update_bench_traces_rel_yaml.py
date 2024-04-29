@@ -37,7 +37,7 @@ def index_tool_factory(name, args):
 # TODO: HTML columns broken
 
 matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(), index_tool_factory)
-matrix.tools.insert(0,ExtractTool(goblint_witness))
+matrix.tools.insert(0,goblint_witness)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])

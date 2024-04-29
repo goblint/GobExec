@@ -10,6 +10,7 @@ R = TypeVar('R', bound=Result)
 
 class Tool(ABC, Generic[B, R]):
     name: str # TODO: not checked by abc
+    columns: int = 1 # TODO: not checked by abc
 
     @abstractmethod
     async def run_async(self, ec: ExecutionContext[B], benchmark: B) -> R:

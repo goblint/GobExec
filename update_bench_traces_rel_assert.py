@@ -37,7 +37,7 @@ def index_tool_factory(name, args):
 
 # TODO index/traces-rel-assert.txt has fewer, but need original paths from yaml for transformation
 matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(),index_tool_factory)
-matrix.tools.insert(0,ExtractTool(goblint_assert))
+matrix.tools.insert(0,goblint_assert)
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
