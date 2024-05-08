@@ -192,13 +192,13 @@ class YamlSummary(Result):
         return env.get_template("yamlsummary.jinja")
 
     @staticmethod
-    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'AssertTypeSummary':
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'YamlSummary':
         stdout = cp.stdout.decode("utf-8")
         confirmed = re.search(r"  confirmed:[ ]*([0-9]*)", stdout)
         confirmed = 0 if confirmed is None else confirmed.group(1)
         unconfirmed = re.search(r"  unconfirmed:[ ]*([0-9]*)", stdout)
         unconfirmed = 0 if unconfirmed is None else unconfirmed.group(1)
-        return AssertTypeSummary(int(confirmed), int(unconfirmed))
+        return YamlSummary(int(confirmed), int(unconfirmed))
 
 
 @dataclass(init=False)
