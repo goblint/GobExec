@@ -191,6 +191,17 @@ class YamlSummary(Result):
     def template(self, env):
         return env.get_template("yamlsummary.jinja")
 
+    @property
+    def kind(self) -> ResultKind:
+        if self.unconfirmed == 0 and self.confirmed > 0:
+            return ResultKind.SUCCESS
+        elif self.unconfirmed == 0:
+            return ResultKind.DEFAULT
+        elif self.unconfirmed > 0:
+            return ResultKind.WARNING
+        else:
+            return ResultKind.FAILURE
+
     @staticmethod
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'YamlSummary':
         stdout = cp.stdout.decode("utf-8")
