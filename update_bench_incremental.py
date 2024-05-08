@@ -16,6 +16,7 @@ from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 from_scratch = GoblintToolFromScratch(
     name="from_scratch",
     program=str(Path("../analyzer/goblint").absolute()),
+    args=["--conf", Path("../bench/index/conf/td3.json").absolute()]
 
 )
 
@@ -24,7 +25,9 @@ def index_tool_factory(name, args):
     incremental = GoblintToolIncremental(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        from_scratch=from_scratch
+        from_scratch=from_scratch,
+        args=args
+
     )
     return ExtractTool(
         incremental,
