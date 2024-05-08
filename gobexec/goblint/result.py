@@ -201,9 +201,7 @@ class YamlSummary(Result):
         return AssertTypeSummary(int(confirmed), int(unconfirmed))
 
 
-dataclass(init=False)
-
-
+@dataclass(init=False)
 class ConcratSummary(Result):
     safe: int
     vulnerable: int
