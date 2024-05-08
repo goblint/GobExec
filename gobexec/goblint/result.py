@@ -184,9 +184,9 @@ class YamlSummary(Result):
     confirmed: int
     unconfirmed: int
 
-    def __init__(self, success: int, unknown: int):
-        self.success = success
-        self.unknown = unknown
+    def __init__(self, confirmed: int, unconfirmed: int):
+        self.confirmed = confirmed
+        self.unconfirmed = unconfirmed
 
     def template(self, env):
         return env.get_template("yamlsummary.jinja")
