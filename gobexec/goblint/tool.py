@@ -35,7 +35,7 @@ class GoblintToolFromScratch(Tool[Incremental, CompletedSubprocess]):
         with (data_path / "out.txt").open("w+b") as out_file:
             args = [self.program] + \
                    ["--set", "goblint-dir", goblint_dir.absolute()] + \
-                   ["--conf", str(Path("../bench/index/conf/td3.json").absolute()), "--enable","incremental.save", "--set", "incremental.save-dir",
+                   ["--enable","incremental.save", "--set", "incremental.save-dir",
                     goblint_dir.absolute(), "-v", str(Path(data_path/benchmark.files.name).absolute())] + \
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, [])
@@ -81,7 +81,7 @@ class GoblintToolIncremental(Tool[Incremental, CompletedSubprocess]):
         with (data_path / "out.txt").open("w+b") as out_file:
             args = [self.program] + \
                    ["--set", "goblint-dir", goblint_dir.absolute()] + \
-                   ["--conf", "../bench/index/conf/td3.json", "--enable","incremental.load", "--set", "incremental.load-dir",
+                   ["--enable","incremental.load", "--set", "incremental.load-dir",
                     str(Path(ec.get_tool_data_path(self.from_scratch)).absolute()), "-v", str(Path(ec.get_tool_data_path(self.from_scratch)/benchmark.files.name).absolute())] + \
                    self.args + \
                    benchmark.tool_data.get(ARGS_TOOL_KEY, [])
