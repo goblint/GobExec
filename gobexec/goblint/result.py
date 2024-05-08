@@ -9,6 +9,8 @@ from gobexec.model.context import ExecutionContext, CompletedSubprocess
 
 @dataclass(init=False)
 class RaceSummary(Result):
+    name = "race"
+
     safe: int
     vulnerable: int
     unsafe: int
@@ -47,6 +49,8 @@ class RaceSummary(Result):
 
 @dataclass(init=False)
 class AssertSummary(Result):
+    name = "assert"
+
     success: int
     warning: int
     error: int
@@ -96,6 +100,8 @@ class Rusage(Result):
 
 @dataclass(init=False)
 class LineSummary(Result):
+    name = "line"
+
     live: int
     dead: int
     total: int
@@ -122,6 +128,8 @@ class LineSummary(Result):
 
 @dataclass(init=False)
 class ThreadSummary(Result):
+    name = "thread"
+
     thread_id: int
     unique_thread_id: int
     max_protected: int
@@ -157,7 +165,9 @@ class ThreadSummary(Result):
 
 
 @dataclass(init=False)
-class AssertTypeSummary(Result):
+class AssertTypeSummary(Result): # TODO: deduplicate?
+    name = "asserttype"
+
     success: int
     unknown: int
 
@@ -214,6 +224,8 @@ class YamlSummary(Result):
 
 @dataclass(init=False)
 class ConcratSummary(Result):
+    name = "concrat"
+
     safe: int
     vulnerable: int
     unsafe: int
@@ -248,6 +260,8 @@ class ConcratSummary(Result):
 
 @dataclass(init=False)
 class IncrementalSummary(Result):
+    name = "incremental"
+
     vars: int
     evals: int
 
