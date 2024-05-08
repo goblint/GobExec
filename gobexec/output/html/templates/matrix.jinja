@@ -31,7 +31,23 @@
         <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
-                {{ benchmark_result.result().result|template }}
+                {% if benchmark_result.result().result.results %}
+                    {{ benchmark_result.result().result|template }}
+                {% else %}
+                    {% if result.kind == ResultKind.SUCCESS %}
+                        <td class="text-nowrap bg-success bg-opacity-25">
+                    {% elif result.kind == ResultKind.WARNING %}
+                        <td class="text-nowrap bg-warning bg-opacity-25">
+                    {% elif result.kind == ResultKind.FAILURE %}
+                        <td class="text-nowrap bg-danger bg-opacity-25">
+                    {% elif result.kind == ResultKind.ERROR %}
+                        <td class="text-nowrap bg-secondary bg-opacity-25">
+                    {% else %}
+                        <td class="text-nowrap">
+                    {% endif %}
+                    {{ benchmark_result.result().result|template }}
+                    </td>
+                {% endif %}
             {% else %}
 
             {% endif %}
