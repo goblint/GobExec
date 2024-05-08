@@ -26,7 +26,7 @@ class CompletedSubprocess(Result):
     rusage: resource.struct_rusage
 
     def template(self, env: Environment) -> Template:
-        return env.from_string("<td></td>")
+        return env.from_string("")
 
 
 class ExecutionContext(Generic[B]):
