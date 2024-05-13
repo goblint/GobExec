@@ -12,8 +12,9 @@ from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 goblint_witness = GoblintTool(
     name="witness_gen",
     program=str(Path("../analyzer/goblint").absolute()),
-    args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug", "--enable",
-          "witness.yaml.enabled"],
+    args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug", "--enable",
+          "witness.yaml.enabled","--set" ,"ana.activated[+]" ,"apron" ,"--set" ,"ana.path_sens[+]" ,"threadflag", "--set" ,"ana.relation.privatization", "mutex-meet-tid-cluster12",
+          "--set", "witness.yaml.entry-types[-]", "invariant_set"],
     dump='witness'
 
 )
@@ -23,7 +24,7 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug"] + args,
         dump='apron',
         validate= goblint_witness
     )
