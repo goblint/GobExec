@@ -4,6 +4,7 @@ from pathlib import Path
 import gobexec.main
 from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.extractor import AssertSummaryExtractor
+from gobexec.goblint.result import LineSummary
 from gobexec.goblint.tool import GoblintTool
 from gobexec.model.result import TimeResult
 from gobexec.model.tools import ExtractTool
@@ -21,7 +22,7 @@ def index_tool_factory(name, args):
     return ExtractTool(
         goblint,
         TimeResult,
-        # TODO: total logical lines
+        LineSummary,
         assert_summary_extractor,
         primary=assert_summary_extractor
     )
