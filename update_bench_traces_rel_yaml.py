@@ -13,8 +13,7 @@ goblint_witness = GoblintTool(
     name="witness_gen",
     program=str(Path("../analyzer/goblint").absolute()),
     args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug", "--enable",
-          "witness.yaml.enabled","--set" ,"ana.activated[+]" ,"apron" ,"--set" ,"ana.path_sens[+]" ,"threadflag", "--set" ,"ana.relation.privatization", "mutex-meet-tid-cluster12",
-          "--set", "witness.yaml.entry-types[-]", "invariant_set"],
+          "witness.yaml.enabled", "--set", "ana.activated[+]", "apron", "--set", "ana.path_sens[+]", "threadflag", "--set", "ana.relation.privatization", "mutex-meet-tid-cluster12", "--set", "witness.yaml.entry-types[-]", "invariant_set"],
     dump='witness'
 
 )
@@ -24,9 +23,8 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug"] + args,
-        dump='apron',
-        validate= goblint_witness
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
+        validate=goblint_witness
     )
 
     return ExtractTool(
@@ -36,6 +34,7 @@ def index_tool_factory(name, args):
 
     )
 
+# TODO: HTML columns broken
 
 matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(), index_tool_factory)
 matrix.tools.insert(0,ExtractTool(goblint_witness))

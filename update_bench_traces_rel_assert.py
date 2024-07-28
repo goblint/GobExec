@@ -2,7 +2,7 @@ from pathlib import Path
 
 import gobexec.main
 from gobexec.goblint.bench import txtindex
-from gobexec.goblint.result import AssertTypeSummary
+from gobexec.goblint.extractor import AssertSummaryExtractor
 from gobexec.goblint.tool import GoblintTool
 
 from gobexec.model.result import TimeResult
@@ -21,18 +21,21 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "warn.debug"] + args,
-        dump= 'apron',
+        args=["-v", "--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "ana.sv-comp.functions", "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
         assertion = goblint_assert
     )
 
     return ExtractTool(
         goblint,
         TimeResult,
-        AssertTypeSummary,
+        # TODO: indicate failed via crash
+        AssertSummaryExtractor(),
 
     )
 
+# TODO: HTML columns broken
+
+# TODO index/traces-rel-assert.txt has fewer, but need original paths from yaml for transformation
 matrix = txtindex.load(Path("../bench/index/traces-rel-yaml.txt").absolute(),index_tool_factory)
 matrix.tools.insert(0,ExtractTool(goblint_assert))
 html_renderer = FileRenderer(Path("out.html"))

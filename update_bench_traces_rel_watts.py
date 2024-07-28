@@ -15,15 +15,19 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
     )
     assert_summary_extractor = AssertSummaryExtractor(assert_counter)
     return ExtractTool(
         goblint,
         TimeResult,
+        # TODO: total logical lines
         assert_summary_extractor,
         primary=assert_summary_extractor
     )
+
+# TODO: add asserts etc totals to HTML
+
 matrix = txtindex.load(Path("../bench/index/traces-relational-watts.txt").absolute(), index_tool_factory)
 matrix.tools.insert(0, assert_counter)
 

@@ -15,8 +15,7 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "dbg.debug"] + args,
-        dump= 'apron'
+        args=["--conf", str(Path("../analyzer/conf/traces-rel.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
     )
 
     return ExtractTool(
@@ -26,6 +25,8 @@ def index_tool_factory(name, args):
         AssertSummaryExtractor(),
 
     )
+
+# TODO: HTML columns broken
 
 matrix = txtindex.load(Path("../bench/index/traces-rel-ratcop.txt").absolute(),index_tool_factory)
 html_renderer = FileRenderer(Path("out.html"))

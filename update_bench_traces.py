@@ -15,13 +15,14 @@ def index_tool_factory(name, args):
     goblint = GoblintTool(
         name=name,
         program=str(Path("../analyzer/goblint").absolute()),
-        args=["--conf", str(Path("../analyzer/conf/traces.json").absolute()), "--enable", "warn.debug"] + args,
+        args=["--conf", str(Path("../analyzer/conf/traces.json").absolute()), "--enable", "allglobs", "--enable", "dbg.timing.enabled", "--enable", "warn.debug", "-v"] + args,
         dump= "priv"
     )
 
     return ExtractTool(
         goblint,
         TimeResult,
+        # TODO: uncalled functions
         LineSummary,
         #PrivPrecResult
 
