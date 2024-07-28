@@ -10,6 +10,8 @@ from gobexec.model.tools import ResultExtractor
 
 
 class AssertSummaryExtractor(ResultExtractor[AssertSummary]):
+    name = "assert"
+
     assert_counter: Optional[Tool[Any, AssertCount]]
 
     def __init__(self, assert_counter: Optional[Tool[Any, AssertCount]] = None) -> None:

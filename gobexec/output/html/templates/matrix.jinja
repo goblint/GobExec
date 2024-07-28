@@ -5,10 +5,19 @@
 <table class="table table-hover table-sm">
 <thead class="table-light">
     <tr>
+        <th></th>
+        <th></th>
+    {% for tool in result.tools %}
+        <th scope="col" colspan="{{ tool.columns|length }}">{{ tool.name }}</th>
+    {% endfor %}
+    </tr>
+    <tr>
         <th scope="col">Group</th>
         <th scope="col">Benchmark</th>
     {% for tool in result.tools %}
-        <th scope="col" colspan="2">{{ tool.name }}</th>
+        {% for column in tool.columns %}
+            <th scope="col">{{ column }}</th>
+        {% endfor %}
     {% endfor %}
     </tr>
 </thead>
@@ -22,18 +31,23 @@
         <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
-                {% if benchmark_result.result().result.kind == ResultKind.DEFAULT %}
-                    {% if "asserts" in result.tools[0].name%}
-                        <td class="text-nowrap"></td>
+                {% if benchmark_result.result().result.results %}
+                    {{ benchmark_result.result().result|template }}
+                {% else %}
+                    {% if result.kind == ResultKind.SUCCESS %}
+                        <td class="text-nowrap bg-success bg-opacity-25">
+                    {% elif result.kind == ResultKind.WARNING %}
+                        <td class="text-nowrap bg-warning bg-opacity-25">
+                    {% elif result.kind == ResultKind.FAILURE %}
+                        <td class="text-nowrap bg-danger bg-opacity-25">
+                    {% elif result.kind == ResultKind.ERROR %}
+                        <td class="text-nowrap bg-secondary bg-opacity-25">
+                    {% else %}
                         <td class="text-nowrap">
                     {% endif %}
-
-                    {% if loop.last %}
-                        <td class="text-nowrap">
-                    {% endif %}
-
+                    {{ benchmark_result.result().result|template }}
+                    </td>
                 {% endif %}
-                {{ benchmark_result.result().result|template }}
             {% else %}
 
             {% endif %}

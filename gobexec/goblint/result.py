@@ -9,6 +9,8 @@ from gobexec.model.context import ExecutionContext, CompletedSubprocess
 
 @dataclass(init=False)
 class RaceSummary(Result):
+    name = "race"
+
     safe: int
     vulnerable: int
     unsafe: int
@@ -47,6 +49,8 @@ class RaceSummary(Result):
 
 @dataclass(init=False)
 class AssertSummary(Result):
+    name = "assert"
+
     success: int
     warning: int
     error: int
@@ -96,6 +100,8 @@ class Rusage(Result):
 
 @dataclass(init=False)
 class LineSummary(Result):
+    name = "line"
+
     live: int
     dead: int
     total: int
@@ -122,6 +128,8 @@ class LineSummary(Result):
 
 @dataclass(init=False)
 class ThreadSummary(Result):
+    name = "thread"
+
     thread_id: int
     unique_thread_id: int
     max_protected: int
@@ -157,7 +165,9 @@ class ThreadSummary(Result):
 
 
 @dataclass(init=False)
-class AssertTypeSummary(Result):
+class AssertTypeSummary(Result): # TODO: deduplicate?
+    name = "asserttype"
+
     success: int
     unknown: int
 
@@ -179,30 +189,43 @@ class AssertTypeSummary(Result):
 
 @dataclass(init=False)
 class YamlSummary(Result):
+    name = "yaml"
+
     confirmed: int
     unconfirmed: int
 
-    def __init__(self, success: int, unknown: int):
-        self.success = success
-        self.unknown = unknown
+    def __init__(self, confirmed: int, unconfirmed: int):
+        self.confirmed = confirmed
+        self.unconfirmed = unconfirmed
 
     def template(self, env):
         return env.get_template("yamlsummary.jinja")
 
+    @property
+    def kind(self) -> ResultKind:
+        if self.unconfirmed == 0 and self.confirmed > 0:
+            return ResultKind.SUCCESS
+        elif self.unconfirmed == 0:
+            return ResultKind.DEFAULT
+        elif self.unconfirmed > 0:
+            return ResultKind.WARNING
+        else:
+            return ResultKind.FAILURE
+
     @staticmethod
-    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'AssertTypeSummary':
+    async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'YamlSummary':
         stdout = cp.stdout.decode("utf-8")
         confirmed = re.search(r"  confirmed:[ ]*([0-9]*)", stdout)
         confirmed = 0 if confirmed is None else confirmed.group(1)
         unconfirmed = re.search(r"  unconfirmed:[ ]*([0-9]*)", stdout)
         unconfirmed = 0 if unconfirmed is None else unconfirmed.group(1)
-        return AssertTypeSummary(int(confirmed), int(unconfirmed))
+        return YamlSummary(int(confirmed), int(unconfirmed))
 
 
-dataclass(init=False)
-
-
+@dataclass(init=False)
 class ConcratSummary(Result):
+    name = "concrat"
+
     safe: int
     vulnerable: int
     unsafe: int
@@ -237,6 +260,8 @@ class ConcratSummary(Result):
 
 @dataclass(init=False)
 class IncrementalSummary(Result):
+    name = "incremental"
+
     vars: int
     evals: int
 
