@@ -24,6 +24,7 @@ class CompletedSubprocess(Result):
     stdout: bytes
     stderr: bytes
     rusage: resource.struct_rusage
+    data_path: Path
 
     def template(self, env: Environment) -> Template:
         return env.from_string("")
@@ -57,4 +58,4 @@ class RootExecutionContext:
             p = await asyncio.create_subprocess_exec(*args, **kwargs)
             stdout, stderr = await p.communicate()
             rusage = self.rusage_child_watcher.rusages.pop(p.pid)
-            return CompletedSubprocess(p, stdout, stderr, rusage)
+            return CompletedSubprocess(p, stdout, stderr, rusage, self.data_path)

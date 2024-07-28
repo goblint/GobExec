@@ -50,6 +50,7 @@ class GoblintToolFromScratch(Tool[Incremental, CompletedSubprocess]):
             )
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
+            cp.data_path = data_path
 
             await ec.subprocess_exec("patch", str(Path(data_path/benchmark.files.name).absolute()), benchmark.patch)
             return cp
@@ -96,6 +97,7 @@ class GoblintToolIncremental(Tool[Incremental, CompletedSubprocess]):
             )
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
+            cp.data_path = data_path
 
             return cp
 
@@ -173,6 +175,7 @@ class GoblintTool(Tool[Single, CompletedSubprocess]):
             )
             out_file.seek(0)
             cp.stdout = out_file.read()  # currently for extractors
+            cp.data_path = data_path
             return cp
 
 

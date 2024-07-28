@@ -2,6 +2,7 @@ import asyncio
 import typing
 from asyncio import Task
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, TypeVar, Generic, Optional, Any
 
 from jinja2 import Environment, Template
@@ -71,16 +72,18 @@ class TimeResult(Result):
     name = "time"
 
     time: float
+    out_path: Path
 
-    def __init__(self, time: float) -> None:
+    def __init__(self, time: float, out_path: Path) -> None:
         self.time = time
+        self.out_path = out_path
 
     def template(self, env: Environment) -> Template:
-        return env.from_string("{{ \"%.2f\"|format(this.time) }}s")
+        return env.get_template("timeresult.jinja")
 
     @staticmethod
     async def extract(ec: ExecutionContext[Any], cp: CompletedSubprocess) -> 'TimeResult':
-        return TimeResult(cp.rusage.ru_utime + cp.rusage.ru_stime)
+        return TimeResult(cp.rusage.ru_utime + cp.rusage.ru_stime, cp.data_path / "out.txt")
 
 
 @dataclass(init=False)
