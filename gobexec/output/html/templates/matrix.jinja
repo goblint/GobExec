@@ -1,13 +1,14 @@
 {% set result = this %}
 <h1>{{ this.matrix.name }}</h1>
 <div class="table-responsive">
+
 <table class="table table-hover table-sm">
 <thead class="table-light">
     <tr>
         <th scope="col">Group</th>
         <th scope="col">Benchmark</th>
     {% for tool in result.tools %}
-        <th scope="col">{{ tool.name }}</th>
+        <th scope="col" colspan="2">{{ tool.name }}</th>
     {% endfor %}
     </tr>
 </thead>
@@ -18,24 +19,23 @@
         {% if loop.first %}
             <th scope="row" rowspan={{ group_result.benchmarks|length }} style="vertical-align: top;">{{ group_result.group.name }}</th>
         {% endif %}
-            <th scope="row">{{ benchmark_results.benchmark.name }}</th>
+        <th scope="row">{{ benchmark_results.benchmark.name }}</th>
         {% for benchmark_result in benchmark_results.results %}
             {% if benchmark_result.done() %}
-            {% if benchmark_result.result().result.kind == ResultKind.SUCCESS %}
-            <td class="text-nowrap bg-success bg-opacity-25">
-            {% elif benchmark_result.result().result.kind == ResultKind.WARNING %}
-            <td class="text-nowrap bg-warning bg-opacity-25">
-            {% elif benchmark_result.result().result.kind == ResultKind.FAILURE %}
-            <td class="text-nowrap bg-danger bg-opacity-25">
-            {% elif benchmark_result.result().result.kind == ResultKind.ERROR %}
-            <td class="text-nowrap bg-secondary bg-opacity-25">
+                {% if benchmark_result.result().result.kind == ResultKind.DEFAULT %}
+                    {% if "asserts" in result.tools[0].name%}
+                        <td class="text-nowrap"></td>
+                        <td class="text-nowrap">
+                    {% endif %}
+
+                    {% if loop.last %}
+                        <td class="text-nowrap">
+                    {% endif %}
+
+                {% endif %}
+                {{ benchmark_result.result().result|template }}
             {% else %}
-            <td class="text-nowrap">
-            {% endif %}
-            {{ benchmark_result.result().result|template }}
-            </td>
-            {% else %}
-            <td></td>
+
             {% endif %}
         {% endfor %}
         </tr>

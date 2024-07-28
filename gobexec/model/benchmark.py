@@ -14,6 +14,15 @@ class Single:
 
 
 @dataclass
+class Incremental:
+    name: str
+    description: str
+    files: Path
+    patch: Path
+    tool_data: Dict[str, Any]
+
+
+@dataclass
 class Group(Generic[B]):
     name: str
     benchmarks: List[B]
