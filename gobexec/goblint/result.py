@@ -105,11 +105,13 @@ class LineSummary(Result):
     live: int
     dead: int
     total: int
+    uncalled: int
 
-    def __init__(self, live: int, dead: int, total: int):
+    def __init__(self, live: int, dead: int, total: int, uncalled: int):
         self.live = live
         self.dead = dead
         self.total = total
+        self.uncalled = uncalled
 
     def template(self, env):
         return env.get_template("linesummary.jinja")
@@ -119,11 +121,12 @@ class LineSummary(Result):
         stdout = cp.stdout.decode("utf-8")
         live = re.search(r"live:[ ]*([0-9]*)", stdout)
         dead = re.search(r"dead:[ ]*([0-9]*)", stdout)
+        uncalled = len(re.findall(r"is uncalled", stdout))
         if live is None and dead is None:
-            return LineSummary(-1, -1, -1)
+            return LineSummary(-1, -1, -1, -1)
         else:
             total = int(live.group(1)) + int(dead.group(1))
-            return LineSummary(int(live.group(1)), int(dead.group(1)), total)
+            return LineSummary(int(live.group(1)), int(dead.group(1)), total, uncalled)
 
 
 @dataclass(init=False)

@@ -22,7 +22,6 @@ def index_tool_factory(name, args):
     return ExtractTool(
         goblint,
         TimeResult,
-        # TODO: uncalled functions
         LineSummary,
         #PrivPrecResult
 
