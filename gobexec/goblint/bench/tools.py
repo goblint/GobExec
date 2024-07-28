@@ -4,11 +4,37 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Any
 
+from jinja2 import Environment, Template
+
 from gobexec.model.base import ResultKind
 from gobexec.model.benchmark import Single
 from gobexec.model.context import ExecutionContext
 from gobexec.model.result import Result
-from gobexec.model.tool import Tool
+from gobexec.model.tool import Tool, B, R
+
+
+@dataclass(init=False)
+class LineCount(Result):
+    total: int
+
+    def __init__(self, total: int) -> None:
+        super().__init__()
+        self.total = total
+
+    def template(self, env: Environment) -> Template:
+        return env.from_string("{{ this.total }}")
+
+class WcLines(Tool[Single, LineCount]):
+    name = "wc -l"
+
+    async def run_async(self, ec: ExecutionContext[Single], benchmark: Single) -> LineCount:
+        cp = await ec.subprocess_exec(
+            "wc", "-l", *[str(file) for file in benchmark.files],
+            # capture_output=True,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        return LineCount(int(cp.stdout.decode("utf-8").split(" ")[0]))
 
 
 @dataclass(init=False)

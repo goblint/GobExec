@@ -30,6 +30,7 @@ def index_tool_factory(name, args):
 
 matrix = txtindex.load(Path("../bench/index/traces-relational-watts.txt").absolute(), index_tool_factory)
 matrix.tools.insert(0, assert_counter)
+matrix.tools.insert(0, tools.WcLines())
 
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
