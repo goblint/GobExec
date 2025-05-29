@@ -41,7 +41,7 @@ class GroupToolsResult(Generic[B, R]):
     benchmarks: List[SingleToolsResult[B, R]]
 
     async def join(self) -> None:
-        await asyncio.wait([benchmark.join() for benchmark in self.benchmarks])
+        await asyncio.wait([asyncio.create_task(benchmark.join()) for benchmark in self.benchmarks])
 
 
 @dataclass(init=False)
@@ -61,7 +61,7 @@ class MatrixResult(Result, Generic[B, R]):
         return self.matrix.tools
 
     async def join(self) -> None:
-        await asyncio.wait([group.join() for group in self.groups])
+        await asyncio.wait([asyncio.create_task(group.join()) for group in self.groups])
 
     def template(self, env):
         return env.get_template("matrix.jinja")
