@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import gobexec.main
-from gobexec.goblint.bench import txtindex
+from gobexec.goblint.bench import txtindex, tools
 from gobexec.goblint.extractor import AssertSummaryExtractor
 from gobexec.goblint.result import AssertTypeSummary, LineSummary
 from gobexec.goblint.tool import GoblintTool
@@ -10,6 +10,7 @@ from gobexec.model.result import TimeResult
 from gobexec.model.tools import ExtractTool
 from gobexec.output.renderer import FileRenderer, ConsoleRenderer, MultiRenderer
 
+assert_counter = tools.AssertCounter()
 
 def index_tool_factory(name, args):
     goblint = GoblintTool(
@@ -22,13 +23,15 @@ def index_tool_factory(name, args):
         goblint,
         TimeResult,
         LineSummary,
-        AssertSummaryExtractor(),
+        AssertSummaryExtractor(assert_counter),
 
     )
 
 # TODO: HTML columns broken
 
 matrix = txtindex.load(Path("../bench/index/traces-rel-ratcop.txt").absolute(),index_tool_factory)
+matrix.tools.insert(0, assert_counter)
+
 html_renderer = FileRenderer(Path("out.html"))
 console_renderer = ConsoleRenderer()
 renderer = MultiRenderer([html_renderer, console_renderer])
